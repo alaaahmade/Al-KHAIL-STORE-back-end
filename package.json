@@ -1,0 +1,39 @@
+{
+  "name": "e-commarce",
+  "version": "1.0.0",
+  "description": "E-Commerce Backend Service",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node seed.js",
+    "dev": "nodemon src/server.js",
+    "migration:generate": "typeorm migration:generate -d src/config/typeorm.config.js",
+    "migration:run": "typeorm migration:run -d src/config/typeorm.config.js",
+    "migration:revert": "typeorm migration:revert -d src/config/typeorm.config.js",
+    "test": "jest --runInBand --detectOpenHandles"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.0",
+    "reflect-metadata": "^0.1.13",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "typeorm": "^0.3.17"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "sqlite3": "^5.1.7",
+    "supertest": "^7.1.0"
+  }
+}
