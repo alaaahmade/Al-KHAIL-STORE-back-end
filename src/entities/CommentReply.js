@@ -1,6 +1,6 @@
-const { EntitySchema } = require("typeorm");
+import { EntitySchema } from "typeorm";
 
-const CommentReply = new EntitySchema({
+export const CommentReply = new EntitySchema({
   name: "CommentReply",
   tableName: "comment_replies",
   columns: {
@@ -59,5 +59,3 @@ const CommentReply = new EntitySchema({
     },
   },
 });
-
-module.exports = CommentReply;

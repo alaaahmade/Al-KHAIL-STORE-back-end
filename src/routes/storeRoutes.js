@@ -1,5 +1,5 @@
-const express = require("express");
-const storeController = require("../controllers/storeController");
+import express from"express";
+import storeController from"../controllers/storeController.js";
 
 const router = express.Router();
 
@@ -16,4 +16,4 @@ router
 
 router.route("/:id/status").patch(storeController.updateStoreStatus);
 
-module.exports = router;
+export default router;

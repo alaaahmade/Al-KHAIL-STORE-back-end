@@ -1,45 +1,53 @@
-require("reflect-metadata");
-const express = require("express");
-const cors = require("cors");
-const morgan = require("morgan");
-const swaggerUi = require("swagger-ui-express");
-const swaggerSpec = require("./config/swagger");
-const errorHandler = require("./middleware/errorHandler");
-const userRoutes = require("./routes/userRoutes");
-const productRoutes = require("./routes/productRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");
-const cartRoutes = require("./routes/cartRoutes");
-const orderRoutes = require("./routes/orderRoutes");
-const sellerRoutes = require("./routes/sellerRoutes");
-const managerRoutes = require("./routes/managerRoutes");
-const invoiceRoutes = require("./routes/invoiceRoutes");
-const commentRoutes = require("./routes/commentRoutes");
-const commentReplyRoutes = require("./routes/commentReplyRoutes");
-const storeRoutes = require("./routes/storeRoutes");
-const authRoutes = require("./routes/authRoutes");
-require("dotenv").config();
+import "reflect-metadata"
+import express from"express";
+import cors from"cors";
+import morgan from"morgan";
+import swaggerUi from"swagger-ui-express";
+import swaggerSpec from"./config/swagger.js";
+import errorHandler from"./middleware/errorHandler.js";
+import userRoutes from"./routes/userRoutes.js";
+import productRoutes from"./routes/productRoutes.js";
+import categoryRoutes from"./routes/categoryRoutes.js";
+import cartRoutes from"./routes/cartRoutes.js";
+import orderRoutes from"./routes/orderRoutes.js";
+import sellerRoutes from"./routes/sellerRoutes.js";
+import managerRoutes from"./routes/managerRoutes.js";
+import invoiceRoutes from"./routes/invoiceRoutes.js";
+import commentRoutes from"./routes/commentRoutes.js";
+import commentReplyRoutes from"./routes/commentReplyRoutes.js";
+import storeRoutes from"./routes/storeRoutes.js";
+import authRoutes from"./routes/authRoutes.js";
+import dotenv from 'dotenv'
+import { TestDataSource } from './config/database.test.js';
+import { AppDataSource } from './config/database.js';
+dotenv.config();
 
-// Export the data source based on environment
+
 let dataSource;
 if (process.env.NODE_ENV === "test") {
-  dataSource = require("./config/database.test").TestDataSource;
+  dataSource = TestDataSource;
 } else {
-  dataSource = require("./config/database").AppDataSource;
+  dataSource = AppDataSource;
 }
-exports.dataSource = dataSource;
+export default dataSource = dataSource;
 
-const app = express();
+export const app = express();
+app.enable('strict routing'); 
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:8084", "http://localhost:3000"],
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+}));
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 // Swagger Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/v1/products", productRoutes);
@@ -53,7 +61,6 @@ app.use("/api/v1/comments", commentRoutes);
 app.use("/api/v1/comment-replies", commentReplyRoutes);
 app.use("/api/v1/stores", storeRoutes);
 
-// Error handling middleware
 app.use(errorHandler);
 
 // Handle unhandled routes
@@ -62,7 +69,3 @@ app.all("*", (req, res, next) => {
   error.status = 404;
   next(error);
 });
-// app.get("/", (req, res) => {
-//   res.send("Welcome to the API");
-// });
-module.exports = app;

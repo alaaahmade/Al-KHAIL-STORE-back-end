@@ -1,6 +1,6 @@
-const orderService = require("../services/orderService");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/AppError");
+import orderService from "../services/orderService.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 /**
  * @swagger
@@ -54,7 +54,7 @@ const AppError = require("../utils/AppError");
  *       201:
  *         description: Order created successfully
  */
-exports.createOrder = catchAsync(async (req, res, next) => {
+const createOrder = catchAsync(async (req, res, next) => {
   const order = await orderService.createOrder(req.body);
   
   // Verify order was created properly
@@ -80,7 +80,7 @@ exports.createOrder = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of orders
  */
-exports.getAllOrders = catchAsync(async (req, res, next) => {
+const getAllOrders = catchAsync(async (req, res, next) => {
   const orders = await orderService.getAllOrders();
 
   if (!Array.isArray(orders)) {
@@ -122,7 +122,7 @@ exports.getAllOrders = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Order not found
  */
-exports.getOrder = catchAsync(async (req, res, next) => {
+const getOrder = catchAsync(async (req, res, next) => {
   const order = await orderService.getOrderById(req.params.id);
   
   if (!order) {
@@ -153,7 +153,7 @@ exports.getOrder = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of user's orders
  */
-exports.getOrdersByUser = catchAsync(async (req, res, next) => {
+const getOrdersByUser = catchAsync(async (req, res, next) => {
   const orders = await orderService.getOrdersByUser(req.params.userId);
 
   res.status(200).json({
@@ -182,7 +182,7 @@ exports.getOrdersByUser = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of orders with specified status
  */
-exports.getOrdersByStatus = catchAsync(async (req, res, next) => {
+const getOrdersByStatus = catchAsync(async (req, res, next) => {
   const status = req.params.status;
   
   if (!status) {
@@ -243,7 +243,7 @@ exports.getOrdersByStatus = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Order not found
  */
-exports.updateOrder = catchAsync(async (req, res, next) => {
+const updateOrder = catchAsync(async (req, res, next) => {
   const order = await orderService.updateOrder(req.params.id, req.body);
   
   if (!order) {
@@ -276,7 +276,7 @@ exports.updateOrder = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Order not found
  */
-exports.deleteOrder = catchAsync(async (req, res, next) => {
+const deleteOrder = catchAsync(async (req, res, next) => {
   try {
     const result = await orderService.deleteOrder(req.params.id);
     
@@ -316,7 +316,7 @@ exports.deleteOrder = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Order not found
  */
-exports.updateOrderStatus = catchAsync(async (req, res, next) => {
+const updateOrderStatus = catchAsync(async (req, res, next) => {
   if (!req.body.status) {
     return next(new AppError('Status field is required', 400));
   }
@@ -337,3 +337,14 @@ exports.updateOrderStatus = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export default {
+  createOrder,
+  getAllOrders,
+  getOrder,
+  getOrdersByUser,
+  getOrdersByStatus,
+  updateOrder,
+  deleteOrder,
+  updateOrderStatus,
+};

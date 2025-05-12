@@ -1,6 +1,6 @@
-const { AppDataSource } = require("../config/database");
-const Category = require("../entities/Category");
-const AppError = require("../utils/AppError");
+import { AppDataSource } from "../config/database.js"
+import {Category} from "../entities/Category.js"
+import AppError from "../utils/AppError.js"
 
 class CategoryService {
   getRepository() {
@@ -51,4 +51,4 @@ class CategoryService {
   }
 }
 
-module.exports = new CategoryService();
+export default new CategoryService();

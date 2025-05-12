@@ -1,15 +1,15 @@
-const bcrypt = require('bcryptjs');
-const { AppDataSource } = require('../config/database');
-const entities = require('../entities');
-const AppError = require('../utils/AppError');
-const catchAsync = require('../utils/catchAsync');
-const { generateToken } = require('../middleware/auth');
+import bcrypt from 'bcryptjs'
+import { AppDataSource } from '../config/database.js'
+import {entities} from '../entities/index.js'
+import AppError from '../utils/AppError.js'
+import catchAsync from '../utils/catchAsync.js'
+import { generateToken } from '../middleware/auth.js'
 
 /**
  * User login
  * @route POST /api/auth/login
  */
-exports.login = catchAsync(async (req, res, next) => {
+const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   // 1) Check if email and password exist
@@ -50,7 +50,7 @@ exports.login = catchAsync(async (req, res, next) => {
  * Register new user
  * @route POST /api/auth/register
  */
-exports.register = catchAsync(async (req, res, next) => {
+const register = catchAsync(async (req, res, next) => {
   const { firstName, lastName, email, password, phoneNumber } = req.body;
 
   // 1) Check if required fields exist
@@ -101,7 +101,7 @@ exports.register = catchAsync(async (req, res, next) => {
  * Get current user profile
  * @route GET /api/auth/me
  */
-exports.getMe = catchAsync(async (req, res, next) => {
+const getMe = catchAsync(async (req, res, next) => {
   // User already available from auth middleware
   const userResponse = { ...req.user };
   delete userResponse.password;
@@ -118,7 +118,7 @@ exports.getMe = catchAsync(async (req, res, next) => {
  * Update password
  * @route PATCH /api/auth/update-password
  */
-exports.updatePassword = catchAsync(async (req, res, next) => {
+const updatePassword = catchAsync(async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
 
   // 1) Check if passwords provided
@@ -149,3 +149,10 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
     message: 'Password updated successfully'
   });
 });
+
+export default {
+  login,
+  getMe,
+  updatePassword,
+  register
+}

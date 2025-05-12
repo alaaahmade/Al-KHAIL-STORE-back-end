@@ -1,6 +1,6 @@
-const storeService = require("../services/storeService");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/AppError");
+import storeService from "../services/storeService.js"
+import catchAsync from "../utils/catchAsync.js"
+import AppError from "../utils/AppError.js"
 
 /**
  * @swagger
@@ -23,7 +23,7 @@ const AppError = require("../utils/AppError");
  *       201:
  *         description: Store created successfully
  */
-exports.createStore = catchAsync(async (req, res, next) => {
+const createStore = catchAsync(async (req, res, next) => {
   const store = await storeService.createStore(req.body);
   res.status(201).json({
     status: "success",
@@ -43,7 +43,7 @@ exports.createStore = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of stores
  */
-exports.getAllStores = catchAsync(async (req, res, next) => {
+const getAllStores = catchAsync(async (req, res, next) => {
   const stores = await storeService.getAllStores();
   res.status(200).json({
     status: "success",
@@ -72,7 +72,7 @@ exports.getAllStores = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Store not found
  */
-exports.getStore = catchAsync(async (req, res, next) => {
+const getStore = catchAsync(async (req, res, next) => {
   const store = await storeService.getStoreById(req.params.id);
   res.status(200).json({
     status: "success",
@@ -109,7 +109,7 @@ exports.getStore = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Store not found
  */
-exports.updateStore = catchAsync(async (req, res, next) => {
+const updateStore = catchAsync(async (req, res, next) => {
   const store = await storeService.updateStore(req.params.id, req.body);
   res.status(200).json({
     status: "success",
@@ -137,7 +137,7 @@ exports.updateStore = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Store not found
  */
-exports.deleteStore = catchAsync(async (req, res, next) => {
+const deleteStore = catchAsync(async (req, res, next) => {
   await storeService.deleteStore(req.params.id);
   res.status(204).json({
     status: "success",
@@ -174,7 +174,7 @@ exports.deleteStore = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Store not found
  */
-exports.updateStoreStatus = catchAsync(async (req, res, next) => {
+const updateStoreStatus = catchAsync(async (req, res, next) => {
   const store = await storeService.updateStoreStatus(
     req.params.id,
     req.body.status
@@ -186,3 +186,12 @@ exports.updateStoreStatus = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+export default {
+  createStore,
+  getAllStores,
+  getStore,
+  updateStore,
+  deleteStore,
+  updateStoreStatus
+} 

@@ -1,17 +1,17 @@
-const { AppDataSource } = require("../config/database");
-const AppError = require("../utils/AppError");
-const { Invoice } = require("../entities");
+import { AppDataSource } from "../config/database.js";
+import AppError from "../utils/AppError.js";
+import { Invoice } from "../entities/index.js";
 
 const invoiceRepository = AppDataSource.getRepository(Invoice);
 
 // Create a new invoice
-exports.createInvoice = async (invoiceData) => {
+const createInvoice = async (invoiceData) => {
   const invoice = invoiceRepository.create(invoiceData);
   return await invoiceRepository.save(invoice);
 };
 
 // Get all invoices
-exports.getAllInvoices = async () => {
+const getAllInvoices = async () => {
   const invoices = await invoiceRepository.find({
     relations: ["user", "seller", "order"],
   });
@@ -19,7 +19,7 @@ exports.getAllInvoices = async () => {
 };
 
 // Get invoice by ID
-exports.getInvoiceById = async (id) => {
+const getInvoiceById = async (id) => {
   const invoice = await invoiceRepository.findOne({
     where: { id },
     relations: ["user", "seller", "order"],
@@ -33,7 +33,7 @@ exports.getInvoiceById = async (id) => {
 };
 
 // Update invoice
-exports.updateInvoice = async (id, updateData) => {
+const updateInvoice = async (id, updateData) => {
   const invoice = await invoiceRepository.findOne({ where: { id } });
 
   if (!invoice) {
@@ -45,7 +45,7 @@ exports.updateInvoice = async (id, updateData) => {
 };
 
 // Delete invoice
-exports.deleteInvoice = async (id) => {
+const deleteInvoice = async (id) => {
   const invoice = await invoiceRepository.findOne({ where: { id } });
 
   if (!invoice) {
@@ -57,7 +57,7 @@ exports.deleteInvoice = async (id) => {
 };
 
 // Get invoices by user ID
-exports.getInvoicesByUser = async (userId) => {
+const getInvoicesByUser = async (userId) => {
   const invoices = await invoiceRepository.find({
     where: { userId },
     relations: ["cart", "user", "seller"],
@@ -66,7 +66,7 @@ exports.getInvoicesByUser = async (userId) => {
 };
 
 // Get invoices by seller ID
-exports.getInvoicesBySeller = async (sellerId) => {
+const getInvoicesBySeller = async (sellerId) => {
   const invoices = await invoiceRepository.find({
     where: { sellerId },
     relations: ["cart", "user", "seller"],
@@ -75,7 +75,7 @@ exports.getInvoicesBySeller = async (sellerId) => {
 };
 
 // Get invoice by cart ID
-exports.getInvoiceByCart = async (cartId) => {
+const getInvoiceByCart = async (cartId) => {
   const invoice = await invoiceRepository.findOne({
     where: { cartId },
     relations: ["cart", "user", "seller"],
@@ -89,7 +89,7 @@ exports.getInvoiceByCart = async (cartId) => {
 };
 
 // Get invoices by order ID
-exports.getInvoicesByOrder = async (orderId) => {
+const getInvoicesByOrder = async (orderId) => {
   const invoices = await invoiceRepository.find({
     where: { orderId },
     relations: ["cart", "user", "seller"],
@@ -98,7 +98,7 @@ exports.getInvoicesByOrder = async (orderId) => {
 };
 
 // Update invoice payment status
-exports.updateInvoicePaymentStatus = async (id, status) => {
+const updateInvoicePaymentStatus = async (id, status) => {
   const invoice = await invoiceRepository.findOne({
     where: { id },
     relations: ["cart", "user", "seller"],
@@ -115,3 +115,16 @@ exports.updateInvoicePaymentStatus = async (id, status) => {
 
   return await invoiceRepository.save(invoice);
 };
+
+export default {
+  createInvoice,
+  getAllInvoices,
+  getInvoiceById,
+  updateInvoice,
+  deleteInvoice,
+  getInvoicesByUser,
+  getInvoicesBySeller,
+  getInvoiceByCart,
+  getInvoicesByOrder,
+  updateInvoicePaymentStatus
+}

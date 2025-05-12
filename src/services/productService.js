@@ -1,9 +1,8 @@
 // src/services/productService.js
 
-const { AppDataSource } = require("../config/database");
-const Product = require("../entities/Product");
-const Category = require("../entities/Category");
-const AppError = require("../utils/AppError");
+import { AppDataSource } from "../config/database.js"
+import { Category, Product } from '../entities/index.js';
+import AppError from "../utils/AppError.js"
 
 class ProductService {
   getRepository() {
@@ -98,4 +97,4 @@ class ProductService {
   }
 }
 
-module.exports = new ProductService();
+export default new ProductService();

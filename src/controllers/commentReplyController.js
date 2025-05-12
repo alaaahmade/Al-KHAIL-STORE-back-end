@@ -1,6 +1,6 @@
-const commentReplyService = require("../services/commentReplyService");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/AppError");
+import commentReplyService from "../services/commentReplyService.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 /**
  * @swagger
@@ -20,7 +20,7 @@ const AppError = require("../utils/AppError");
  *       400:
  *         description: Invalid input
  */
-exports.createCommentReply = catchAsync(async (req, res) => {
+const createCommentReply = catchAsync(async (req, res) => {
   const reply = await commentReplyService.createCommentReply(req.body);
   res.status(201).json({
     status: "success",
@@ -44,7 +44,7 @@ exports.createCommentReply = catchAsync(async (req, res) => {
  *               items:
  *                 $ref: '#/components/schemas/CommentReply'
  */
-exports.getAllCommentReplies = catchAsync(async (req, res) => {
+const getAllCommentReplies = catchAsync(async (req, res) => {
   const replies = await commentReplyService.getAllCommentReplies();
 
   res.status(200).json({
@@ -72,7 +72,7 @@ exports.getAllCommentReplies = catchAsync(async (req, res) => {
  *       404:
  *         description: Comment reply not found
  */
-exports.getCommentReply = catchAsync(async (req, res) => {
+const getCommentReply = catchAsync(async (req, res) => {
   const reply = await commentReplyService.getCommentReply(req.params.id);
   res.status(200).json({
     status: "success",
@@ -104,7 +104,7 @@ exports.getCommentReply = catchAsync(async (req, res) => {
  *       404:
  *         description: Comment reply not found
  */
-exports.updateCommentReply = catchAsync(async (req, res) => {
+const updateCommentReply = catchAsync(async (req, res) => {
   const reply = await commentReplyService.updateCommentReply(
     req.params.id,
     req.body
@@ -133,7 +133,7 @@ exports.updateCommentReply = catchAsync(async (req, res) => {
  *       404:
  *         description: Comment reply not found
  */
-exports.deleteCommentReply = catchAsync(async (req, res) => {
+const deleteCommentReply = catchAsync(async (req, res) => {
   await commentReplyService.deleteCommentReply(req.params.id);
   res.status(204).json({
     status: "success",
@@ -157,7 +157,7 @@ exports.deleteCommentReply = catchAsync(async (req, res) => {
  *       200:
  *         description: List of replies for the comment
  */
-exports.getRepliesByComment = catchAsync(async (req, res) => {
+const getRepliesByComment = catchAsync(async (req, res) => {
   const replies = await commentReplyService.getRepliesByComment(
     req.params.commentId
   );
@@ -184,7 +184,7 @@ exports.getRepliesByComment = catchAsync(async (req, res) => {
  *       200:
  *         description: List of replies by the user
  */
-exports.getRepliesByUser = catchAsync(async (req, res) => {
+const getRepliesByUser = catchAsync(async (req, res) => {
   const replies = await commentReplyService.getRepliesByUser(req.params.userId);
   res.status(200).json({
     status: "success",
@@ -192,3 +192,14 @@ exports.getRepliesByUser = catchAsync(async (req, res) => {
     data: replies,
   });
 });
+
+
+export default {
+  createCommentReply,
+  getAllCommentReplies,
+  getCommentReply,
+  updateCommentReply,
+  deleteCommentReply,
+  getRepliesByComment,
+  getRepliesByUser
+}

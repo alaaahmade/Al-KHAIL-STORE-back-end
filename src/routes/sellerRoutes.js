@@ -1,6 +1,6 @@
-const express = require("express");
+import express from "express";
+import sellerController from "../controllers/sellerController.js";
 const router = express.Router();
-const sellerController = require("../controllers/sellerController");
 
 // Base routes
 router
@@ -20,4 +20,4 @@ router.get("/user/:userId", sellerController.getSellerByUser);
 router.get("/store/:storeId", sellerController.getSellersByStore);
 router.patch("/:id/status", sellerController.updateStatus);
 
-module.exports = router;
+export default router;

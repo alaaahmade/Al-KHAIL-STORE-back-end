@@ -1,6 +1,6 @@
-const managerService = require("../services/managerService");
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
+import managerService from "../services/managerService.js";
+import AppError from "../utils/AppError.js";
+import catchAsync from "../utils/catchAsync.js";
 
 /**
  * @swagger
@@ -35,7 +35,7 @@ const catchAsync = require("../utils/catchAsync");
  *       201:
  *         description: Manager created successfully
  */
-exports.createManager = catchAsync(async (req, res, next) => {
+const createManager = catchAsync(async (req, res, next) => {
   const manager = await managerService.createManager(req.body);
   res.status(201).json({
     status: "success",
@@ -53,7 +53,7 @@ exports.createManager = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of all managers
  */
-exports.getAllManagers = catchAsync(async (req, res, next) => {
+const getAllManagers = catchAsync(async (req, res, next) => {
   const managers = (await managerService.getAllManagers()) || [];
 
   if (!Array.isArray(managers)) {
@@ -87,7 +87,7 @@ exports.getAllManagers = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Manager not found
  */
-exports.getManager = catchAsync(async (req, res, next) => {
+const getManager = catchAsync(async (req, res, next) => {
   try {
     const manager = await managerService.getManager(req.params.id);
     res.status(200).json({
@@ -138,7 +138,7 @@ exports.getManager = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Manager not found
  */
-exports.updateManager = catchAsync(async (req, res, next) => {
+const updateManager = catchAsync(async (req, res, next) => {
   try {
     const manager = await managerService.updateManager(req.params.id, req.body);
     res.status(200).json({
@@ -174,7 +174,7 @@ exports.updateManager = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Manager not found
  */
-exports.deleteManager = catchAsync(async (req, res, next) => {
+const deleteManager = catchAsync(async (req, res, next) => {
   try {
     await managerService.deleteManager(req.params.id);
     res.status(204).json({
@@ -210,7 +210,7 @@ exports.deleteManager = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Manager not found
  */
-exports.getManagerByEmail = catchAsync(async (req, res, next) => {
+const getManagerByEmail = catchAsync(async (req, res, next) => {
   const manager = await managerService.getManagerByEmail(req.params.email);
   res.status(200).json({
     status: "success",
@@ -252,7 +252,7 @@ exports.getManagerByEmail = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Manager not found
  */
-exports.updatePassword = catchAsync(async (req, res, next) => {
+const updatePassword = catchAsync(async (req, res, next) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const manager = await managerService.updatePassword(
@@ -309,7 +309,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Manager not found
  */
-exports.updateStatus = catchAsync(async (req, res, next) => {
+const updateStatus = catchAsync(async (req, res, next) => {
   try {
     const manager = await managerService.updateStatus(
       req.params.id,
@@ -362,7 +362,7 @@ exports.updateStatus = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Manager not found
  */
-exports.updatePermissions = catchAsync(async (req, res, next) => {
+const updatePermissions = catchAsync(async (req, res, next) => {
   try {
     const manager = await managerService.updatePermissions(
       req.params.id,
@@ -382,3 +382,15 @@ exports.updatePermissions = catchAsync(async (req, res, next) => {
     next(error);
   }
 });
+
+export default {
+  createManager,
+  getAllManagers,
+  getManager,
+  updateManager,
+  deleteManager,
+  updatePassword,
+  updateStatus,
+  updatePermissions,
+  getManagerByEmail,
+};

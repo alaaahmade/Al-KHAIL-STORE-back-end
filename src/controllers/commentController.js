@@ -1,6 +1,6 @@
-const commentService = require("../services/commentService");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/AppError");
+import commentService from "../services/commentService.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 /**
  * @swagger
@@ -20,7 +20,7 @@ const AppError = require("../utils/AppError");
  *       400:
  *         description: Invalid input
  */
-exports.createComment = catchAsync(async (req, res) => {
+const createComment = catchAsync(async (req, res) => {
   const comment = await commentService.createComment(req.body);
   res.status(201).json({
     status: "success",
@@ -44,7 +44,7 @@ exports.createComment = catchAsync(async (req, res) => {
  *               items:
  *                 $ref: '#/components/schemas/Comment'
  */
-exports.getAllComments = catchAsync(async (req, res) => {
+const getAllComments = catchAsync(async (req, res) => {
   const comments = await commentService.getAllComments();
   const safeComments = Array.isArray(comments) ? comments : [];
   res.status(200).json({
@@ -72,7 +72,7 @@ exports.getAllComments = catchAsync(async (req, res) => {
  *       404:
  *         description: Comment not found
  */
-exports.getComment = catchAsync(async (req, res) => {
+const getComment = catchAsync(async (req, res) => {
   const comment = await commentService.getComment(req.params.id);
   res.status(200).json({
     status: "success",
@@ -104,7 +104,7 @@ exports.getComment = catchAsync(async (req, res) => {
  *       404:
  *         description: Comment not found
  */
-exports.updateComment = catchAsync(async (req, res) => {
+const updateComment = catchAsync(async (req, res) => {
   const comment = await commentService.updateComment(req.params.id, req.body);
   res.status(200).json({
     status: "success",
@@ -130,7 +130,7 @@ exports.updateComment = catchAsync(async (req, res) => {
  *       404:
  *         description: Comment not found
  */
-exports.deleteComment = catchAsync(async (req, res) => {
+const deleteComment = catchAsync(async (req, res) => {
   await commentService.deleteComment(req.params.id);
   res.status(204).json({
     status: "success",
@@ -154,7 +154,7 @@ exports.deleteComment = catchAsync(async (req, res) => {
  *       200:
  *         description: List of comments for the product
  */
-exports.getCommentsByProduct = catchAsync(async (req, res) => {
+const getCommentsByProduct = catchAsync(async (req, res) => {
   const comments = await commentService.getCommentsByProduct(
     req.params.productId
   );
@@ -182,7 +182,7 @@ exports.getCommentsByProduct = catchAsync(async (req, res) => {
  *       200:
  *         description: List of comments by the user
  */
-exports.getCommentsByUser = catchAsync(async (req, res) => {
+const getCommentsByUser = catchAsync(async (req, res) => {
   const comments = await commentService.getCommentsByUser(req.params.userId);
   const safeComments = Array.isArray(comments) ? comments : [];
   res.status(200).json({
@@ -208,7 +208,7 @@ exports.getCommentsByUser = catchAsync(async (req, res) => {
  *       200:
  *         description: Average rating for the product
  */
-exports.getProductAverageRating = catchAsync(async (req, res) => {
+const getProductAverageRating = catchAsync(async (req, res) => {
   const averageRating = await commentService.getProductAverageRating(
     req.params.productId
   );
@@ -217,3 +217,15 @@ exports.getProductAverageRating = catchAsync(async (req, res) => {
     data: { averageRating },
   });
 });
+
+
+export default{
+  createComment,
+  getAllComments,
+  getComment,
+  updateComment,
+  deleteComment,
+  getCommentsByProduct,
+  getCommentsByUser,
+  getProductAverageRating
+}

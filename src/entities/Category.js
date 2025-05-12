@@ -1,6 +1,6 @@
-const { EntitySchema } = require("typeorm");
-
-const Category = new EntitySchema({
+import { EntitySchema } from "typeorm";
+import {Product} from "./Product.js"
+export const Category = new EntitySchema({
   name: "Category",
   tableName: "Category",
   columns: {
@@ -43,7 +43,7 @@ const Category = new EntitySchema({
   relations: {
     products: {
       type: "many-to-many",
-      target: require("./Product"),
+      target: Product,
       joinTable: {
         name: "product_categories",
         joinColumn: {
@@ -58,5 +58,3 @@ const Category = new EntitySchema({
     },
   },
 });
-
-module.exports = Category;

@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const commentController = require("../controllers/commentController");
+import express from "express";
+import commentController from "../controllers/commentController.js";
 
+const router = express.Router();
 // Base routes
 router
   .route("/")
@@ -23,4 +23,4 @@ router.get(
   commentController.getProductAverageRating
 );
 
-module.exports = router;
+export default router;

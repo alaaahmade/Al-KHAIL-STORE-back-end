@@ -1,12 +1,12 @@
-const { Order } = require("../entities");
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
-const { AppDataSource } = require("../config/database");
+import { Order } from"../entities/index.js";
+import AppError from"../utils/AppError.js";
+import catchAsync from"../utils/catchAsync.js";
+import { AppDataSource } from"../config/database.js";
 
 const orderRepository = AppDataSource.getRepository(Order);
 
 // إنشاء طلب جديد (Create new order)
-exports.createOrder = catchAsync(async (orderData) => {
+const createOrder = catchAsync(async (orderData) => {
   try {
     // Verify required fields are present
     const requiredFields = [
@@ -37,7 +37,7 @@ exports.createOrder = catchAsync(async (orderData) => {
     }
     
     // For database errors, create a friendly error
-    console.error('Order creation error:', error);
+    console.error('Order creation error:', error.message);
     throw new AppError(
       `Failed to create order: ${error.message || 'Database error'}`, 
       500
@@ -45,14 +45,14 @@ exports.createOrder = catchAsync(async (orderData) => {
   }
 });
 
-exports.getAllOrders = async () => {
+const getAllOrders = async () => {
   return await orderRepository.find({
     relations: ["user", "cart"],
   });
 };
 
 // جلب طلب بواسطة المعرف
-exports.getOrderById = catchAsync(async (id) => {
+const getOrderById = catchAsync(async (id) => {
   const order = await orderRepository.findOne({
     where: { id },
     relations: ["user", "cart"],
@@ -66,7 +66,7 @@ exports.getOrderById = catchAsync(async (id) => {
 });
 
 // تحديث الطلب
-exports.updateOrder = catchAsync(async (id, updateData) => {
+const updateOrder = catchAsync(async (id, updateData) => {
   const order = await orderRepository.findOne({
     where: { id },
   });
@@ -80,7 +80,7 @@ exports.updateOrder = catchAsync(async (id, updateData) => {
 });
 
 // حذف الطلب
-exports.deleteOrder = catchAsync(async (id) => {
+const deleteOrder = catchAsync(async (id) => {
   // First check if the order exists
   const order = await orderRepository.findOne({
     where: { id },
@@ -121,7 +121,7 @@ exports.deleteOrder = catchAsync(async (id) => {
 });
 
 // جلب الطلبات بناءً على معرف المستخدم
-exports.getOrdersByUser = catchAsync(async (userId) => {
+const getOrdersByUser = catchAsync(async (userId) => {
   const orders = await orderRepository.find({
     where: { userId },
     relations: ["user", "cart"],
@@ -131,7 +131,7 @@ exports.getOrdersByUser = catchAsync(async (userId) => {
 });
 
 // جلب الطلبات بناءً على الحالة
-exports.getOrdersByStatus = catchAsync(async (status) => {
+const getOrdersByStatus = catchAsync(async (status) => {
   const orders = await orderRepository.find({
     where: { orderStatus: status },
     relations: ["user", "cart"],
@@ -140,7 +140,7 @@ exports.getOrdersByStatus = catchAsync(async (status) => {
   return orders; // لا ترمي خطأ
 });
 
-exports.updateOrderStatus = catchAsync(async (id, status) => {
+const updateOrderStatus = catchAsync(async (id, status) => {
   const order = await orderRepository.findOne({
     where: { id },
   });
@@ -152,3 +152,15 @@ exports.updateOrderStatus = catchAsync(async (id, status) => {
   order.orderStatus = status;
   return await orderRepository.save(order);
 });
+
+
+export default {
+  createOrder,
+  getAllOrders,
+  getOrderById,
+  updateOrder,
+  deleteOrder,
+  getOrdersByUser,
+  getOrdersByStatus,
+  updateOrderStatus
+}

@@ -1,5 +1,5 @@
-const userService = require("../services/userService");
-const catchAsync = require("../utils/catchAsync");
+import userService from "../services/userService.js";
+import catchAsync from "../utils/catchAsync.js";
 
 /**
  * @swagger
@@ -23,7 +23,7 @@ const catchAsync = require("../utils/catchAsync");
  *       400:
  *         description: Invalid input data
  */
-exports.createUser = catchAsync(async (req, res) => {
+const createUser = catchAsync(async (req, res) => {
   const user = await userService.createUser(req.body);
   res.status(201).json({
     status: "success",
@@ -59,7 +59,7 @@ exports.createUser = catchAsync(async (req, res) => {
  *                       items:
  *                         $ref: '#/components/schemas/User'
  */
-exports.getAllUsers = catchAsync(async (req, res) => {
+const getAllUsers = catchAsync(async (req, res) => {
   const users = await userService.getAllUsers();
   res.status(200).json({
     status: "success",
@@ -93,7 +93,7 @@ exports.getAllUsers = catchAsync(async (req, res) => {
  *       404:
  *         description: User not found
  */
-exports.getUser = catchAsync(async (req, res) => {
+const getUser = catchAsync(async (req, res) => {
   const user = await userService.getUserById(req.params.id);
   res.status(200).json({
     status: "success",
@@ -132,7 +132,7 @@ exports.getUser = catchAsync(async (req, res) => {
  *       404:
  *         description: User not found
  */
-exports.updateUser = catchAsync(async (req, res) => {
+const updateUser = catchAsync(async (req, res) => {
   const user = await userService.updateUser(req.params.id, req.body);
   res.status(200).json({
     status: "success",
@@ -161,10 +161,19 @@ exports.updateUser = catchAsync(async (req, res) => {
  *       404:
  *         description: User not found
  */
-exports.deleteUser = catchAsync(async (req, res) => {
+const deleteUser = catchAsync(async (req, res) => {
   await userService.deleteUser(req.params.id);
   res.status(204).json({
     status: "success",
     data: null,
   });
 });
+
+
+export default {
+  getAllUsers,
+  getUser,
+  createUser,
+  updateUser,
+  deleteUser,
+}

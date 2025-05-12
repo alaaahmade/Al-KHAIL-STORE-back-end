@@ -1,6 +1,6 @@
-const categoryService = require("../services/categoryService");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/AppError");
+import categoryService from "../services/categoryService.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 /**
  * @swagger
@@ -31,7 +31,7 @@ const AppError = require("../utils/AppError");
  *       201:
  *         description: Category created successfully
  */
-exports.createCategory = catchAsync(async (req, res, next) => {
+const createCategory = catchAsync(async (req, res, next) => {
   const category = await categoryService.createCategory(req.body);
   res.status(201).json({
     status: "success",
@@ -51,7 +51,7 @@ exports.createCategory = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of categories
  */
-exports.getAllCategories = catchAsync(async (req, res, next) => {
+const getAllCategories = catchAsync(async (req, res, next) => {
   console.log("Getting all categories...");
   const categories = await categoryService.getAllCategories();
   console.log("Categories returned:", categories);
@@ -82,7 +82,7 @@ exports.getAllCategories = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Category not found
  */
-exports.getCategory = catchAsync(async (req, res, next) => {
+const getCategory = catchAsync(async (req, res, next) => {
   const category = await categoryService.getCategoryById(req.params.id);
   if (!category) {
     return next(new AppError("No category found with that ID", 404));
@@ -128,7 +128,7 @@ exports.getCategory = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Category not found
  */
-exports.updateCategory = catchAsync(async (req, res, next) => {
+const updateCategory = catchAsync(async (req, res, next) => {
   const category = await categoryService.getCategoryById(req.params.id);
   if (!category) {
     return next(new AppError("No category found with that ID", 404));
@@ -163,7 +163,7 @@ exports.updateCategory = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Category not found
  */
-exports.deleteCategory = catchAsync(async (req, res, next) => {
+const deleteCategory = catchAsync(async (req, res, next) => {
   const category = await categoryService.getCategoryById(req.params.id);
   if (!category) {
     return next(new AppError("No category found with that ID", 404));
@@ -174,3 +174,12 @@ exports.deleteCategory = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+
+export default {
+  createCategory,
+  getAllCategories,
+  getCategory,
+  updateCategory,
+  deleteCategory,
+};

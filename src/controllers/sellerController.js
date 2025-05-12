@@ -1,6 +1,6 @@
-const sellerService = require("../services/sellerService");
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
+import sellerService from "../services/sellerService.js";
+import AppError from "../utils/AppError.js";
+import catchAsync from "../utils/catchAsync.js";
 
 /**
  * @swagger
@@ -29,7 +29,7 @@ const catchAsync = require("../utils/catchAsync");
  *       201:
  *         description: Seller created successfully
  */
-exports.createSeller = catchAsync(async (req, res, next) => {
+const createSeller = catchAsync(async (req, res, next) => {
   const seller = await sellerService.createSeller(req.body);
   res.status(201).json({
     status: "success",
@@ -47,7 +47,7 @@ exports.createSeller = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of all sellers
  */
-exports.getAllSellers = catchAsync(async (req, res, next) => {
+const getAllSellers = catchAsync(async (req, res, next) => {
   const sellers = await sellerService.getAllSellers();
   res.status(200).json({
     status: "success",
@@ -74,7 +74,7 @@ exports.getAllSellers = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Seller not found
  */
-exports.getSeller = catchAsync(async (req, res, next) => {
+const getSeller = catchAsync(async (req, res, next) => {
   const seller = await sellerService.getSeller(req.params.id);
   res.status(200).json({
     status: "success",
@@ -110,7 +110,7 @@ exports.getSeller = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Seller not found
  */
-exports.updateSeller = catchAsync(async (req, res, next) => {
+const updateSeller = catchAsync(async (req, res, next) => {
   const seller = await sellerService.updateSeller(req.params.id, req.body);
   res.status(200).json({
     status: "success",
@@ -136,7 +136,7 @@ exports.updateSeller = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Seller not found
  */
-exports.deleteSeller = catchAsync(async (req, res, next) => {
+const deleteSeller = catchAsync(async (req, res, next) => {
   await sellerService.deleteSeller(req.params.id);
   res.status(204).json({
     status: "success",
@@ -162,7 +162,7 @@ exports.deleteSeller = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Seller not found
  */
-exports.getSellerByUser = catchAsync(async (req, res, next) => {
+const getSellerByUser = catchAsync(async (req, res, next) => {
   const seller = await sellerService.getSellerByUser(req.params.userId);
   res.status(200).json({
     status: "success",
@@ -186,7 +186,7 @@ exports.getSellerByUser = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of sellers for the store
  */
-exports.getSellersByStore = catchAsync(async (req, res, next) => {
+const getSellersByStore = catchAsync(async (req, res, next) => {
   const sellers = await sellerService.getSellersByStore(req.params.storeId);
   res.status(200).json({
     status: "success",
@@ -225,7 +225,7 @@ exports.getSellersByStore = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Seller not found
  */
-exports.updateStatus = catchAsync(async (req, res, next) => {
+const updateStatus = catchAsync(async (req, res, next) => {
   const seller = await sellerService.updateStatus(
     req.params.id,
     req.body.status
@@ -235,3 +235,15 @@ exports.updateStatus = catchAsync(async (req, res, next) => {
     data: seller,
   });
 });
+
+
+export default {
+  createSeller,
+  getAllSellers,
+  getSeller,
+  updateSeller,
+  deleteSeller,
+  getSellerByUser,
+  getSellersByStore,
+  updateStatus
+};

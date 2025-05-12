@@ -1,6 +1,6 @@
-const { AppDataSource } = require("../config/database");
-const { User } = require("../entities");
-const AppError = require("../utils/AppError");
+import { AppDataSource } from "../config/database.js";
+import { User } from "../entities/index.js";
+import AppError from "../utils/AppError.js";
 
 class UserService {
   constructor() {
@@ -49,4 +49,4 @@ class UserService {
   }
 }
 
-module.exports = new UserService();
+export default  new UserService();

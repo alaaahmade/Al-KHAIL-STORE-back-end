@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const invoiceController = require("../controllers/invoiceController");
+import express from "express";
+import invoiceController from "../controllers/invoiceController.js";
 
+const router = express.Router();
 // Base routes
 router
   .route("/")
@@ -24,4 +24,4 @@ router.patch(
   invoiceController.updateInvoicePaymentStatus
 );
 
-module.exports = router;
+export default router;

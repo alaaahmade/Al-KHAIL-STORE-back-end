@@ -1,10 +1,10 @@
-const { AppDataSource } = require("../config/database"); // تأكد من استيراد AppDataSource
-const Comment = require("../entities/Comment");
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
+import { AppDataSource } from "../config/database.js"; // تأكد من استيراد AppDataSource
+import {Comment} from "../entities/Comment.js";
+import AppError from "../utils/AppError.js";
+import catchAsync from "../utils/catchAsync.js";
 
 // Create a new comment
-exports.createComment = catchAsync(async (commentData) => {
+const createComment = catchAsync(async (commentData) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comment = commentRepository.create(commentData); // إنشاء كائن جديد
   await commentRepository.save(comment); // حفظ الكومنت في قاعدة البيانات
@@ -12,14 +12,14 @@ exports.createComment = catchAsync(async (commentData) => {
 });
 
 // Get all comments
-exports.getAllComments = catchAsync(async () => {
+const getAllComments = catchAsync(async () => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comments = await commentRepository.find(); // الحصول على جميع الكومنتات
   return comments;
 });
 
 // Get comment by ID
-exports.getComment = catchAsync(async (id) => {
+const getComment = catchAsync(async (id) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comment = await commentRepository.findOne({ where: { id } }); // العثور على الكومنت باستخدام الـ ID
   if (!comment) {
@@ -29,7 +29,7 @@ exports.getComment = catchAsync(async (id) => {
 });
 
 // Update comment
-exports.updateComment = catchAsync(async (id, updateData) => {
+const updateComment = catchAsync(async (id, updateData) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comment = await commentRepository.findOne({ where: { id } }); // العثور على الكومنت باستخدام الـ ID
   if (!comment) {
@@ -41,7 +41,7 @@ exports.updateComment = catchAsync(async (id, updateData) => {
 });
 
 // Delete comment
-exports.deleteComment = catchAsync(async (id) => {
+const deleteComment = catchAsync(async (id) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comment = await commentRepository.findOne({ where: { id } }); // العثور على الكومنت باستخدام الـ ID
   if (!comment) {
@@ -51,21 +51,21 @@ exports.deleteComment = catchAsync(async (id) => {
 });
 
 // Get comments by product ID
-exports.getCommentsByProduct = catchAsync(async (productId) => {
+const getCommentsByProduct = catchAsync(async (productId) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comments = await commentRepository.find({ where: { productId } }); // الحصول على جميع الكومنتات بناءً على الـ productId
   return comments;
 });
 
 // Get comments by user ID
-exports.getCommentsByUser = catchAsync(async (userId) => {
+const getCommentsByUser = catchAsync(async (userId) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comments = await commentRepository.find({ where: { userId } }); // الحصول على جميع الكومنتات بناءً على الـ userId
   return comments;
 });
 
 // Get average rating for a product
-exports.getProductAverageRating = catchAsync(async (productId) => {
+const getProductAverageRating = catchAsync(async (productId) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comments = await commentRepository.find({ where: { productId } }); // الحصول على جميع الكومنتات بناءً على الـ productId
   if (comments.length === 0) {
@@ -77,3 +77,15 @@ exports.getProductAverageRating = catchAsync(async (productId) => {
   ); // حساب مجموع التقييمات
   return totalRating / comments.length; // حساب المتوسط
 });
+
+
+export default {
+  createComment,
+  getAllComments,
+  getComment,
+  updateComment,
+  deleteComment,
+  getCommentsByProduct,
+  getCommentsByUser,
+  getProductAverageRating,
+}

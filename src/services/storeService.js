@@ -1,21 +1,21 @@
-const { AppDataSource } = require("../config/database");
-const Store = require("../entities/Store");
-const AppError = require("../utils/AppError");
+import { AppDataSource } from "../config/database.js"
+import {Store} from "../entities/Store.js"
+import AppError from "../utils/AppError.js"
 
 const storeRepository = AppDataSource.getRepository(Store);
 
-exports.createStore = async (storeData) => {
+const createStore = async (storeData) => {
   const store = storeRepository.create(storeData);
   return await storeRepository.save(store);
 };
 
-exports.getAllStores = async () => {
+const getAllStores = async () => {
   return await storeRepository.find({
     relations: ["products"],
   });
 };
 
-exports.getStoreById = async (id) => {
+const getStoreById = async (id) => {
   const store = await storeRepository.findOne({
     where: { id },
     relations: ["products"],
@@ -28,7 +28,7 @@ exports.getStoreById = async (id) => {
   return store;
 };
 
-exports.updateStore = async (id, storeData) => {
+const updateStore = async (id, storeData) => {
   const store = await storeRepository.findOne({
     where: { id },
     relations: ["products"],
@@ -42,14 +42,14 @@ exports.updateStore = async (id, storeData) => {
   return await storeRepository.save(store);
 };
 
-exports.deleteStore = async (id) => {
+const deleteStore = async (id) => {
   const result = await storeRepository.delete(id);
   if (result.affected === 0) {
     throw new AppError("Store not found", 404);
   }
 };
 
-exports.updateStoreStatus = async (id, status) => {
+const updateStoreStatus = async (id, status) => {
   const store = await storeRepository.findOne({
     where: { id },
     relations: ["products"],
@@ -60,3 +60,13 @@ exports.updateStoreStatus = async (id, status) => {
   store.isActive = status === 'active';
   return await storeRepository.save(store);
 };
+
+
+export default {
+  createStore,
+  getAllStores,
+  getStoreById,
+  updateStore,
+  deleteStore,
+  updateStoreStatus
+}

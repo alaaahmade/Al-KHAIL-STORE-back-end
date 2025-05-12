@@ -66,6 +66,6 @@ runTests()
     process.exit(0);
   })
   .catch(error => {
-    console.error('Script error:', error);
+    console.error('Script error:', error.message);
     process.exit(1);
   });

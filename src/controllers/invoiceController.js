@@ -1,6 +1,6 @@
-const invoiceService = require("../services/invoiceService");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/AppError");
+import invoiceService from "../services/invoiceService.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 /**
  * @swagger
@@ -29,7 +29,7 @@ const AppError = require("../utils/AppError");
  *       201:
  *         description: Invoice created successfully
  */
-exports.createInvoice = catchAsync(async (req, res, next) => {
+const createInvoice = catchAsync(async (req, res, next) => {
   const invoice = await invoiceService.createInvoice(req.body);
   res.status(201).json({
     status: "success",
@@ -47,7 +47,7 @@ exports.createInvoice = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of all invoices
  */
-exports.getAllInvoices = catchAsync(async (req, res, next) => {
+const getAllInvoices = catchAsync(async (req, res, next) => {
   const invoices = await invoiceService.getAllInvoices();
 
   if (!Array.isArray(invoices)) {
@@ -79,7 +79,7 @@ exports.getAllInvoices = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Invoice not found
  */
-exports.getInvoice = catchAsync(async (req, res, next) => {
+const getInvoice = catchAsync(async (req, res, next) => {
   const invoice = await invoiceService.getInvoiceById(req.params.id);
   if (!invoice) {
     return next(new AppError("No invoice found with that ID", 404));
@@ -106,7 +106,7 @@ exports.getInvoice = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of user's invoices
  */
-exports.getInvoicesByUser = catchAsync(async (req, res, next) => {
+const getInvoicesByUser = catchAsync(async (req, res, next) => {
   const invoices = await invoiceService.getInvoicesByUser(req.params.userId);
   if (!Array.isArray(invoices)) {
     return next(new AppError("Invoices data is not available", 500));
@@ -135,7 +135,7 @@ exports.getInvoicesByUser = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of seller's invoices
  */
-exports.getInvoicesBySeller = catchAsync(async (req, res, next) => {
+const getInvoicesBySeller = catchAsync(async (req, res, next) => {
   const invoices = await invoiceService.getInvoicesBySeller(
     req.params.sellerId
   );
@@ -168,7 +168,7 @@ exports.getInvoicesBySeller = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Invoice not found
  */
-exports.getInvoiceByCart = catchAsync(async (req, res, next) => {
+const getInvoiceByCart = catchAsync(async (req, res, next) => {
   const invoice = await invoiceService.getInvoiceByCart(req.params.cartId);
   if (!invoice) {
     return next(new AppError("No invoice found with that cart ID", 404));
@@ -208,7 +208,7 @@ exports.getInvoiceByCart = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Invoice not found
  */
-exports.updateInvoice = catchAsync(async (req, res, next) => {
+const updateInvoice = catchAsync(async (req, res, next) => {
   const invoice = await invoiceService.updateInvoice(req.params.id, req.body);
   if (!invoice) {
     return next(new AppError("No invoice found with that ID", 404));
@@ -237,7 +237,7 @@ exports.updateInvoice = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Invoice not found
  */
-exports.deleteInvoice = catchAsync(async (req, res, next) => {
+const deleteInvoice = catchAsync(async (req, res, next) => {
   const invoice = await invoiceService.deleteInvoice(req.params.id);
   if (!invoice) {
     return next(new AppError("No invoice found with that ID", 404));
@@ -264,7 +264,7 @@ exports.deleteInvoice = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of order's invoices
  */
-exports.getInvoicesByOrder = catchAsync(async (req, res, next) => {
+const getInvoicesByOrder = catchAsync(async (req, res, next) => {
   const invoices = await invoiceService.getInvoicesByOrder(req.params.orderId);
   if (!Array.isArray(invoices)) {
     return next(new AppError("Invoices data is not available", 500));
@@ -307,7 +307,7 @@ exports.getInvoicesByOrder = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Invoice not found
  */
-exports.updateInvoicePaymentStatus = catchAsync(async (req, res, next) => {
+const updateInvoicePaymentStatus = catchAsync(async (req, res, next) => {
   const invoice = await invoiceService.updateInvoicePaymentStatus(
     req.params.id,
     req.body.status
@@ -320,3 +320,17 @@ exports.updateInvoicePaymentStatus = catchAsync(async (req, res, next) => {
     data: invoice,
   });
 });
+
+export default {
+  createInvoice,
+  getAllInvoices,
+  getInvoice,
+  updateInvoice,
+  deleteInvoice,
+  getInvoicesByUser,
+  getInvoicesBySeller,
+  getInvoiceByCart,
+  updateInvoicePaymentStatus,
+  getInvoicesByOrder
+
+}

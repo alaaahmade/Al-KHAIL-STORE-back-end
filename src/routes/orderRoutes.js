@@ -1,6 +1,6 @@
-const express = require("express");
-const orderController = require("../controllers/orderController");
-const { protect, restrictTo, isOwnerOrAdmin } = require('../middleware/auth');
+import express from "express";
+import orderController from "../controllers/orderController.js";
+import { protect, restrictTo, isOwnerOrAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -12,8 +12,22 @@ router
 
 router
   .route("/:id")
-  .get(protect, isOwnerOrAdmin(req => orderController.getOrderById(req.params.id).then(order => order.userId)), orderController.getOrder)
-  .patch(protect, isOwnerOrAdmin(req => orderController.getOrderById(req.params.id).then(order => order.userId)), orderController.updateOrder)
+  .get(
+    protect,
+    isOwnerOrAdmin(async (req) => {
+      const order = await orderController.getOrder(req);
+      return order.userId;
+    }),
+    orderController.getOrder
+  )
+  .patch(
+    protect,
+    isOwnerOrAdmin(async (req) => {
+      const order = await orderController.getOrder(req);
+      return order.userId;
+    }),
+    orderController.updateOrder
+  )
   .delete(protect, restrictTo('ADMIN', 'MANAGER'), orderController.deleteOrder);
 
 router.route("/user/:userId").get(protect, 
@@ -29,4 +43,4 @@ router.route("/:id/status").patch(
   orderController.updateOrderStatus
 );
 
-module.exports = router;
+export default router;

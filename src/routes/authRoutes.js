@@ -1,6 +1,6 @@
-const express = require('express');
-const authController = require('../controllers/authController');
-const { protect } = require('../middleware/auth');
+import express from 'express';
+import authController from '../controllers/authController.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -121,4 +121,4 @@ router.get('/me', protect, authController.getMe);
  */
 router.patch('/update-password', protect, authController.updatePassword);
 
-module.exports = router;
+export default router;

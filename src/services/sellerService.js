@@ -1,17 +1,16 @@
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
-const { AppDataSource } = require("../config/database");
-const entities = require("../entities");
-
+import AppError from "../utils/AppError.js"
+import catchAsync from "../utils/catchAsync.js"
+import { AppDataSource } from "../config/database.js"
+import {entities} from "../entities/index.js"
 // Create a new seller
-exports.createSeller = catchAsync(async (sellerData) => {
+const createSeller = catchAsync(async (sellerData) => {
   const sellerRepository = AppDataSource.getRepository(entities.Seller);
   const seller = sellerRepository.create(sellerData);
   return await sellerRepository.save(seller);
 });
 
 // Get all sellers
-exports.getAllSellers = catchAsync(async () => {
+const getAllSellers = catchAsync(async () => {
   const sellerRepository = AppDataSource.getRepository(entities.Seller);
   const sellers = await sellerRepository.find({
     relations: ["user", "store"]
@@ -20,7 +19,7 @@ exports.getAllSellers = catchAsync(async () => {
 });
 
 // Get seller by ID
-exports.getSeller = catchAsync(async (id) => {
+const getSeller = catchAsync(async (id) => {
   const sellerRepository = AppDataSource.getRepository(entities.Seller);
   const seller = await sellerRepository.findOne({
     where: { id },
@@ -34,7 +33,7 @@ exports.getSeller = catchAsync(async (id) => {
 });
 
 // Update seller
-exports.updateSeller = catchAsync(async (id, updateData) => {
+const updateSeller = catchAsync(async (id, updateData) => {
   const sellerRepository = AppDataSource.getRepository(entities.Seller);
   
   // First find the seller
@@ -54,7 +53,7 @@ exports.updateSeller = catchAsync(async (id, updateData) => {
 });
 
 // Delete seller
-exports.deleteSeller = catchAsync(async (id) => {
+const deleteSeller = catchAsync(async (id) => {
   const sellerRepository = AppDataSource.getRepository(entities.Seller);
   
   const seller = await sellerRepository.findOne({
@@ -70,7 +69,7 @@ exports.deleteSeller = catchAsync(async (id) => {
 });
 
 // Get seller by user ID
-exports.getSellerByUser = catchAsync(async (userId) => {
+const getSellerByUser = catchAsync(async (userId) => {
   const sellerRepository = AppDataSource.getRepository(entities.Seller);
   
   const seller = await sellerRepository.findOne({
@@ -86,7 +85,7 @@ exports.getSellerByUser = catchAsync(async (userId) => {
 });
 
 // Get sellers by store ID
-exports.getSellersByStore = catchAsync(async (storeId) => {
+const getSellersByStore = catchAsync(async (storeId) => {
   const sellerRepository = AppDataSource.getRepository(entities.Seller);
   
   const sellers = await sellerRepository.find({
@@ -98,7 +97,7 @@ exports.getSellersByStore = catchAsync(async (storeId) => {
 });
 
 // Update seller status
-exports.updateStatus = catchAsync(async (id, status) => {
+const updateStatus = catchAsync(async (id, status) => {
   const sellerRepository = AppDataSource.getRepository(entities.Seller);
   
   const seller = await sellerRepository.findOne({
@@ -113,3 +112,15 @@ exports.updateStatus = catchAsync(async (id, status) => {
   
   return await sellerRepository.save(seller);
 });
+
+
+export default {
+  createSeller,
+  getAllSellers,
+  getSeller,
+  deleteSeller,
+  updateSeller,
+  getSellerByUser,
+  getSellersByStore,
+  updateStatus,
+}

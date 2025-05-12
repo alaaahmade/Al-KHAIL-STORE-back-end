@@ -1,7 +1,7 @@
-const express = require("express");
-const router = express.Router();
-const commentReplyController = require("../controllers/commentReplyController");
+import express from "express";
+import commentReplyController from "../controllers/commentReplyController.js";
 
+const router = express.Router();
 // Base routes
 router
   .route("/")
@@ -19,4 +19,4 @@ router
 router.get("/comment/:commentId", commentReplyController.getRepliesByComment);
 router.get("/user/:userId", commentReplyController.getRepliesByUser);
 
-module.exports = router;
+export default  router;

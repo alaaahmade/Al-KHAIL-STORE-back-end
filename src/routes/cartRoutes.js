@@ -1,5 +1,5 @@
-const express = require("express");
-const cartController = require("../controllers/cartController");
+import express from "express"
+import cartController from "../controllers/cartController.js"
 
 const router = express.Router();
 
@@ -33,4 +33,4 @@ router
   .patch(cartController.updateCartItem)
   .delete(cartController.removeCartItem);
 
-module.exports = router;
+  export default  router;

@@ -1,6 +1,6 @@
-const productService = require("../services/productService");
-const catchAsync = require("../utils/catchAsync");
-const AppError = require("../utils/AppError");
+import productService from "../services/productService.js";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/AppError.js";
 
 /**
  * @swagger
@@ -52,7 +52,7 @@ const AppError = require("../utils/AppError");
  *       201:
  *         description: Product created successfully
  */
-exports.createProduct = catchAsync(async (req, res, next) => {
+const createProduct = catchAsync(async (req, res, next) => {
   const { categoryIds, storeId, ...productData } = req.body;
 
   // تمرير العلاقة مع الـ Store بشكل صحيح
@@ -84,7 +84,7 @@ exports.createProduct = catchAsync(async (req, res, next) => {
  *       200:
  *         description: List of products
  */
-exports.getAllProducts = catchAsync(async (req, res, next) => {
+const getAllProducts = catchAsync(async (req, res, next) => {
   const products = await productService.getAllProducts();
   res.status(200).json({
     status: "success",
@@ -113,7 +113,7 @@ exports.getAllProducts = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Product not found
  */
-exports.getProduct = catchAsync(async (req, res, next) => {
+const getProduct = catchAsync(async (req, res, next) => {
   const product = await productService.getProductById(req.params.id);
   res.status(200).json({
     status: "success",
@@ -171,7 +171,7 @@ exports.getProduct = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Product not found
  */
-exports.updateProduct = catchAsync(async (req, res, next) => {
+const updateProduct = catchAsync(async (req, res, next) => {
   const { categoryIds, ...productData } = req.body;
   const product = await productService.updateProduct(
     req.params.id,
@@ -220,7 +220,7 @@ exports.updateProduct = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Product not found
  */
-exports.deleteProduct = catchAsync(async (req, res, next) => {
+const deleteProduct = catchAsync(async (req, res, next) => {
   await productService.deleteProduct(req.params.id);
   res.status(204).json({
     status: "success",
@@ -251,7 +251,7 @@ exports.deleteProduct = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Product or Category not found
  */
-exports.addCategory = catchAsync(async (req, res, next) => {
+const addCategory = catchAsync(async (req, res, next) => {
   const product = await productService.addCategoryToProduct(
     req.params.id,
     req.params.categoryId
@@ -287,7 +287,7 @@ exports.addCategory = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Product or Category not found
  */
-exports.removeCategory = catchAsync(async (req, res, next) => {
+const removeCategory = catchAsync(async (req, res, next) => {
   const product = await productService.removeCategoryFromProduct(
     req.params.id,
     req.params.categoryId
@@ -333,7 +333,7 @@ exports.removeCategory = catchAsync(async (req, res, next) => {
  *                       items:
  *                         $ref: '#/components/schemas/Product'
  */
-exports.getProductsByStore = catchAsync(async (req, res) => {
+const getProductsByStore = catchAsync(async (req, res) => {
   const products = await productService.getProductsByStoreId(
     req.params.storeId
   );
@@ -345,3 +345,15 @@ exports.getProductsByStore = catchAsync(async (req, res) => {
     },
   });
 });
+
+
+export default {
+  createProduct,
+  getAllProducts,
+  getProduct,
+  updateProduct,
+  deleteProduct,
+  addCategory,
+  removeCategory,
+  getProductsByStore,
+}

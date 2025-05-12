@@ -1,24 +1,24 @@
-const { AppDataSource } = require("../config/database");
-const { Cart, CartItem } = require("../entities");
-const AppError = require("../utils/AppError");
+import { AppDataSource } from "../config/database.js";
+import { Cart, CartItem } from "../entities/index.js";
+import AppError from "../utils/AppError.js";
 
 // Repositories
 const cartRepository = AppDataSource.getRepository(Cart);
 const cartItemRepository = AppDataSource.getRepository(CartItem);
 
 // Create a new cart
-exports.createCart = async (cartData) => {
+const createCart = async (cartData) => {
   const cart = cartRepository.create(cartData);
   return await cartRepository.save(cart);
 };
 
 // Get all carts
-exports.getAllCarts = async () => {
+const getAllCarts = async () => {
   return await cartRepository.find({ relations: ["items"] });
 };
 
 // Get cart by ID
-exports.getCart = async (id) => {
+const getCart = async (id) => {
   const cart = await cartRepository.findOne({
     where: { id },
     relations: ["items"],
@@ -30,7 +30,7 @@ exports.getCart = async (id) => {
 };
 
 // Update cart
-exports.updateCart = async (id, updateData) => {
+const updateCart = async (id, updateData) => {
   const cart = await cartRepository.findOne({ where: { id } });
   if (!cart) {
     throw new AppError("No cart found with that ID", 404);
@@ -40,7 +40,7 @@ exports.updateCart = async (id, updateData) => {
 };
 
 // Delete cart
-exports.deleteCart = async (id) => {
+const deleteCart = async (id) => {
   const result = await cartRepository.delete(id);
   if (result.affected === 0) {
     throw new AppError("No cart found with that ID", 404);
@@ -48,12 +48,12 @@ exports.deleteCart = async (id) => {
 };
 
 // Get cart items
-exports.getCartItems = async (cartId) => {
+const getCartItems = async (cartId) => {
   return await cartItemRepository.find({ where: { cart: { id: cartId } } });
 };
 
 // Add item to cart
-exports.addCartItem = async (cartId, itemData) => {
+const addCartItem = async (cartId, itemData) => {
   // Get the cart with its existing items
   const cart = await cartRepository.findOne({ 
     where: { id: cartId },
@@ -107,7 +107,7 @@ async function updateCartTotal(cartId) {
 }
 
 // Update cart item
-exports.updateCartItem = async (itemId, updateData) => {
+const updateCartItem = async (itemId, updateData) => {
   const item = await cartItemRepository.findOne({ 
     where: { id: itemId },
     relations: ["cart"]
@@ -129,7 +129,7 @@ exports.updateCartItem = async (itemId, updateData) => {
 };
 
 // Remove item from cart
-exports.removeCartItem = async (itemId) => {
+const removeCartItem = async (itemId) => {
   // First get the item to know which cart to update
   const item = await cartItemRepository.findOne({ 
     where: { id: itemId },
@@ -153,7 +153,7 @@ exports.removeCartItem = async (itemId) => {
 };
 
 // Get user's cart
-exports.getUserCart = async (userId) => {
+const getUserCart = async (userId) => {
   // First, try to find the cart using userId
   try {
     const cart = await cartRepository.findOne({
@@ -185,7 +185,7 @@ exports.getUserCart = async (userId) => {
 };
 
 // Checkout cart
-exports.checkoutCart = async (cartId) => {
+const checkoutCart = async (cartId) => {
   const cart = await cartRepository.findOne({
     where: { id: cartId },
     relations: ["items"],
@@ -218,3 +218,13 @@ exports.checkoutCart = async (cartId) => {
     itemCount: cart.items.length
   };
 };
+
+
+export default {
+  getCartItems,
+  addCartItem,
+  updateCartItem,
+  removeCartItem,
+  getUserCart,
+  checkoutCart,
+}

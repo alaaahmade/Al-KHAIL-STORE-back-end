@@ -1,5 +1,5 @@
-const express = require("express");
-const categoryController = require("../controllers/categoryController");
+import express from "express"
+import categoryController from "../controllers/categoryController.js"
 
 const router = express.Router();
 
@@ -14,4 +14,4 @@ router
   .patch(categoryController.updateCategory)
   .delete(categoryController.deleteCategory);
 
-module.exports = router;
+  export default  router;

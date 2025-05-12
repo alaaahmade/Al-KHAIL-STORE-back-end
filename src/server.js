@@ -1,11 +1,13 @@
-const { AppDataSource } = require("./config/database");
-const app = require("./app");
-require("dotenv").config();
+import {app} from "./app.js";
+import { AppDataSource } from './config/database.js';
+import dotenv from "dotenv";
+dotenv.config(); 
 
 // Initialize database connection
 const initializeDatabase = async () => {
   try {
     await AppDataSource.initialize();
+    // await seedDatabase()
     console.log("Database connected successfully");
 
     const PORT = process.env.PORT || 3000;

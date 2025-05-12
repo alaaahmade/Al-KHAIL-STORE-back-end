@@ -1,11 +1,11 @@
-const { DataSource } = require("typeorm");
-const entities = require("../entities");
-const dotenv = require("dotenv");
+import { DataSource } from "typeorm"
+import {entities} from "../entities/index.js"
+import dotenv from "dotenv"
 
 dotenv.config();
 
 // Use a test database with same structure as production
-const TestDataSource = new DataSource({
+export const TestDataSource = new DataSource({
   type: "postgres",
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT) || 5432,
@@ -19,5 +19,3 @@ const TestDataSource = new DataSource({
   subscribers: [],
   dropSchema: false, // Do not drop schema to avoid losing data
 });
-
-module.exports = { TestDataSource };

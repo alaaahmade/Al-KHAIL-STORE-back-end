@@ -1,4 +1,4 @@
-const AppError = require("../utils/AppError");
+import AppError from "../utils/AppError.js"
 
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
@@ -41,7 +41,7 @@ const sendErrorProd = (err, res) => {
     });
   } else {
     // Programming or other unknown error: don't leak error details
-    console.error("ERROR 💥", err);
+    console.error("ERROR 💥", err.message);
     res.status(500).json({
       status: "error",
       message: "Something went wrong!",
@@ -49,7 +49,7 @@ const sendErrorProd = (err, res) => {
   }
 };
 
-module.exports = (err, req, res, next) => {
+export default (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 

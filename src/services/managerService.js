@@ -1,13 +1,13 @@
-const { AppDataSource } = require("../config/database");
-const bcrypt = require("bcryptjs");
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
+import { AppDataSource } from "../config/database.js";
+import bcrypt from "bcryptjs";
+import AppError from "../utils/AppError.js";
+import catchAsync from "../utils/catchAsync.js";
 
 const managerRepository = AppDataSource.getRepository("Manager");
 const userRepository = AppDataSource.getRepository("User");
 
 // Create a new manager
-exports.createManager = catchAsync(async (managerData) => {
+const createManager = catchAsync(async (managerData) => {
   // First create the user
   const hashedPassword = await bcrypt.hash(managerData.password, 12);
   const user = userRepository.create({
@@ -27,7 +27,7 @@ exports.createManager = catchAsync(async (managerData) => {
 });
 
 // Get all managers
-exports.getAllManagers = catchAsync(async () => {
+const getAllManagers = catchAsync(async () => {
   const managers = await managerRepository.find({
     relations: ["user"],
     select: {
@@ -48,7 +48,7 @@ exports.getAllManagers = catchAsync(async () => {
 });
 
 // Get manager by ID
-exports.getManager = catchAsync(async (id) => {
+const getManager = catchAsync(async (id) => {
   const manager = await managerRepository.findOne({
     where: { id },
     relations: ["user"],
@@ -74,7 +74,7 @@ exports.getManager = catchAsync(async (id) => {
 });
 
 // Update manager
-exports.updateManager = catchAsync(async (id, updateData) => {
+const updateManager = catchAsync(async (id, updateData) => {
   const manager = await managerRepository.findOne({
     where: { id },
     relations: ["user"],
@@ -104,7 +104,7 @@ exports.updateManager = catchAsync(async (id, updateData) => {
 });
 
 // Delete manager
-exports.deleteManager = catchAsync(async (id) => {
+const deleteManager = catchAsync(async (id) => {
   const manager = await managerRepository.findOne({
     where: { id },
     relations: ["user"],
@@ -121,7 +121,7 @@ exports.deleteManager = catchAsync(async (id) => {
 });
 
 // Get manager by email
-exports.getManagerByEmail = catchAsync(async (email) => {
+const getManagerByEmail = catchAsync(async (email) => {
   const user = await userRepository.findOne({
     where: { email, role: "MANAGER" },
   });
@@ -139,7 +139,7 @@ exports.getManagerByEmail = catchAsync(async (email) => {
 });
 
 // Update manager password
-exports.updatePassword = catchAsync(
+const updatePassword = catchAsync(
   async (id, currentPassword, newPassword) => {
     const manager = await managerRepository.findOne({
       where: { id },
@@ -163,7 +163,7 @@ exports.updatePassword = catchAsync(
 );
 
 // Update manager status
-exports.updateStatus = catchAsync(async (id, isActive) => {
+const updateStatus = catchAsync(async (id, isActive) => {
   const manager = await managerRepository.findOne({
     where: { id },
   });
@@ -179,7 +179,7 @@ exports.updateStatus = catchAsync(async (id, isActive) => {
 });
 
 // Update manager permissions
-exports.updatePermissions = catchAsync(async (id, permissions) => {
+const updatePermissions = catchAsync(async (id, permissions) => {
   const manager = await managerRepository.findOne({
     where: { id },
   });
@@ -195,7 +195,7 @@ exports.updatePermissions = catchAsync(async (id, permissions) => {
 });
 
 // Update last login
-exports.updateLastLogin = catchAsync(async (id) => {
+const updateLastLogin = catchAsync(async (id) => {
   const manager = await managerRepository.findOne({
     where: { id },
   });
@@ -209,3 +209,16 @@ exports.updateLastLogin = catchAsync(async (id) => {
 
   return manager;
 });
+
+export default {
+  createManager,
+  getAllManagers,
+  getManager,
+  updateManager,
+  deleteManager,
+  getManagerByEmail,
+  updatePassword,
+  updateStatus,
+  updatePermissions,
+  updateLastLogin,
+};
