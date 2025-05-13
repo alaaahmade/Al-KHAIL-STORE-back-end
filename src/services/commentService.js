@@ -4,32 +4,39 @@ import AppError from "../utils/AppError.js";
 import catchAsync from "../utils/catchAsync.js";
 
 // Create a new comment
-const createComment = catchAsync(async (commentData) => {
+const createComment = async (commentData) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comment = commentRepository.create(commentData); // إنشاء كائن جديد
   await commentRepository.save(comment); // حفظ الكومنت في قاعدة البيانات
   return comment;
-});
+};
 
 // Get all comments
-const getAllComments = catchAsync(async () => {
-  const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
-  const comments = await commentRepository.find(); // الحصول على جميع الكومنتات
+const getAllComments = async () => {
+  const commentRepository = AppDataSource.getRepository(Comment);
+  const comments = await commentRepository.find({
+    relations: ["user", "product", "commentReplies", "commentReplies.user"],
+    order: {
+      createdAt: "ASC"
+    },  
+  });
+  comments.forEach(comment => {
+    comment.commentReplies.sort((a, b) =>  new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime() );
+  });
   return comments;
-});
+}
 
-// Get comment by ID
-const getComment = catchAsync(async (id) => {
+const getComment = async (id) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comment = await commentRepository.findOne({ where: { id } }); // العثور على الكومنت باستخدام الـ ID
   if (!comment) {
     throw new AppError("No comment found with that ID", 404);
   }
   return comment;
-});
+};
 
 // Update comment
-const updateComment = catchAsync(async (id, updateData) => {
+const updateComment = async (id, updateData) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comment = await commentRepository.findOne({ where: { id } }); // العثور على الكومنت باستخدام الـ ID
   if (!comment) {
@@ -38,34 +45,34 @@ const updateComment = catchAsync(async (id, updateData) => {
   Object.assign(comment, updateData); // تحديث الكومنت
   await commentRepository.save(comment); // حفظ الكومنت المحدث
   return comment;
-});
+};
 
 // Delete comment
-const deleteComment = catchAsync(async (id) => {
+const deleteComment = async (id) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comment = await commentRepository.findOne({ where: { id } }); // العثور على الكومنت باستخدام الـ ID
   if (!comment) {
     throw new AppError("No comment found with that ID", 404);
   }
   await commentRepository.remove(comment); // حذف الكومنت
-});
+};
 
 // Get comments by product ID
-const getCommentsByProduct = catchAsync(async (productId) => {
+const getCommentsByProduct = async (productId) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comments = await commentRepository.find({ where: { productId } }); // الحصول على جميع الكومنتات بناءً على الـ productId
   return comments;
-});
+};
 
 // Get comments by user ID
-const getCommentsByUser = catchAsync(async (userId) => {
+const getCommentsByUser = async (userId) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comments = await commentRepository.find({ where: { userId } }); // الحصول على جميع الكومنتات بناءً على الـ userId
   return comments;
-});
+};
 
 // Get average rating for a product
-const getProductAverageRating = catchAsync(async (productId) => {
+const getProductAverageRating = async (productId) => {
   const commentRepository = AppDataSource.getRepository(Comment); // الحصول على Repository للكومنت
   const comments = await commentRepository.find({ where: { productId } }); // الحصول على جميع الكومنتات بناءً على الـ productId
   if (comments.length === 0) {
@@ -76,7 +83,7 @@ const getProductAverageRating = catchAsync(async (productId) => {
     0
   ); // حساب مجموع التقييمات
   return totalRating / comments.length; // حساب المتوسط
-});
+};
 
 
 export default {

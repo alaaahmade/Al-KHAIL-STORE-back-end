@@ -46,6 +46,8 @@ const createComment = catchAsync(async (req, res) => {
  */
 const getAllComments = catchAsync(async (req, res) => {
   const comments = await commentService.getAllComments();
+  console.log(comments);
+  
   const safeComments = Array.isArray(comments) ? comments : [];
   res.status(200).json({
     status: "success",

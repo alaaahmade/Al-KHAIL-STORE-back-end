@@ -1,21 +1,23 @@
-const Review = require("../entities/Review");
-const AppError = require("../utils/AppError");
-const catchAsync = require("../utils/catchAsync");
+import { Comment } from '../entities/Comment.js';
+import {Review} from "../entities/Review.js"
+import AppError from "../utils/AppError.js"
+import catchAsync from "../utils/catchAsync.js"
+import { AppDataSource } from "../config/database.js";
 
 // Create a new review
-exports.createReview = catchAsync(async (reviewData) => {
+const createReview = catchAsync(async (reviewData) => {
   const review = await Review.create(reviewData);
   return review;
 });
 
 // Get all reviews
-exports.getAllReviews = catchAsync(async () => {
+const getAllReviews = catchAsync(async () => {
   const reviews = await Review.find();
   return reviews;
 });
 
 // Get review by ID
-exports.getReview = catchAsync(async (id) => {
+const getReview = catchAsync(async (id) => {
   const review = await Review.findById(id);
   if (!review) {
     throw new AppError("No review found with that ID", 404);
@@ -24,7 +26,7 @@ exports.getReview = catchAsync(async (id) => {
 });
 
 // Update review
-exports.updateReview = catchAsync(async (id, updateData) => {
+const updateReview = catchAsync(async (id, updateData) => {
   const review = await Review.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
@@ -36,7 +38,7 @@ exports.updateReview = catchAsync(async (id, updateData) => {
 });
 
 // Delete review
-exports.deleteReview = catchAsync(async (id) => {
+const deleteReview = catchAsync(async (id) => {
   const review = await Review.findByIdAndDelete(id);
   if (!review) {
     throw new AppError("No review found with that ID", 404);
@@ -44,19 +46,19 @@ exports.deleteReview = catchAsync(async (id) => {
 });
 
 // Get reviews by product ID
-exports.getReviewsByProduct = catchAsync(async (productId) => {
+const getReviewsByProduct = catchAsync(async (productId) => {
   const reviews = await Review.find({ productId });
   return reviews;
 });
 
 // Get reviews by user ID
-exports.getReviewsByUser = catchAsync(async (userId) => {
+const getReviewsByUser = catchAsync(async (userId) => {
   const reviews = await Review.find({ userId });
   return reviews;
 });
 
 // Get average rating for a product
-exports.getProductAverageRating = catchAsync(async (productId) => {
+const getProductAverageRating = catchAsync(async (productId) => {
   const reviews = await Review.find({ productId });
   if (reviews.length === 0) {
     return 0;
@@ -64,3 +66,26 @@ exports.getProductAverageRating = catchAsync(async (productId) => {
   const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
   return totalRating / reviews.length;
 });
+
+export const getLatestReviews = catchAsync(async () => {
+  const commentRepo = AppDataSource.getRepository(Comment);
+  const results = await commentRepo.find({
+    relations: ["user", "product", "commentReply"],
+    order: { createdAt: "DESC" },
+    take: 3,
+  });
+  return results;
+});
+
+
+export default {
+  createReview,
+  getAllReviews,
+  getReview,
+  updateReview,
+  deleteReview,
+  getReviewsByProduct,
+  getReviewsByUser,
+  getProductAverageRating,
+  getLatestReviews
+}

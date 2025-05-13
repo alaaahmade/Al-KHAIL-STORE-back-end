@@ -10,6 +10,8 @@ import {CommentReply} from "./CommentReply.js";
 import {Manager} from "./Manager.js";
 import {Seller} from "./Seller.js";
 import {Store} from "./Store.js";
+import { Review } from './Review.js';
+import {Roles} from './roles.js'
 const entities = [
   User,
   Product,
@@ -22,7 +24,9 @@ const entities = [
   CommentReply,
   Manager,
   Seller,
-  Store
+  Store,
+  Review,
+  Roles
 ]
 
 export {
@@ -38,7 +42,9 @@ export {
   Manager,
   Seller,
   Store,
-  entities
+  entities,
+  Review,
+  Roles
 }
 
 

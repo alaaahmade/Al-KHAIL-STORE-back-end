@@ -47,7 +47,7 @@ const createOrder = catchAsync(async (orderData) => {
 
 const getAllOrders = async () => {
   return await orderRepository.find({
-    relations: ["user", "cart"],
+    relations: ["user", "cart", "cart.items", "cart.items.product"],
   });
 };
 
@@ -153,6 +153,14 @@ const updateOrderStatus = catchAsync(async (id, status) => {
   return await orderRepository.save(order);
 });
 
+const getRecentOrders = async () => {
+  return await orderRepository.find({
+    take: 3,
+    order: { createdAt: "DESC" },
+    relations: ["user", "cart", "cart.items", "cart.items.product"],
+  });
+};
+
 
 export default {
   createOrder,
@@ -162,5 +170,6 @@ export default {
   deleteOrder,
   getOrdersByUser,
   getOrdersByStatus,
-  updateOrderStatus
+  updateOrderStatus,
+  getRecentOrders
 }

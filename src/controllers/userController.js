@@ -169,6 +169,17 @@ const deleteUser = catchAsync(async (req, res) => {
   });
 });
 
+const getAllRoles = catchAsync(async (req, res) => {
+  const roles = await userService.getAllRoles();
+  res.status(200).json({
+    status: "success",
+    results: roles.length,
+    data: {
+      roles,
+    },
+  });
+});
+
 
 export default {
   getAllUsers,
@@ -176,4 +187,5 @@ export default {
   createUser,
   updateUser,
   deleteUser,
+  getAllRoles
 }

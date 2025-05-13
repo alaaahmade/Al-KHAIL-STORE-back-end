@@ -54,5 +54,10 @@ export const Comment = new EntitySchema({
         referencedColumnName: "id",
       },
     },
+    commentReplies: {
+      type: "one-to-many",
+      target: "CommentReply",
+      inverseSide: "comment",
+    },
   },
 });

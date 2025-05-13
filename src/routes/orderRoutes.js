@@ -11,6 +11,11 @@ router
   .post(protect, orderController.createOrder);
 
 router
+.route("/recent")
+.get(protect, restrictTo('ADMIN', 'MANAGER'), orderController.getRecentOrders)
+
+
+router
   .route("/:id")
   .get(
     protect,

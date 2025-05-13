@@ -1,10 +1,11 @@
 import { AppDataSource } from "../config/database.js";
-import { User } from "../entities/index.js";
+import { Roles, User } from "../entities/index.js";
 import AppError from "../utils/AppError.js";
 
 class UserService {
   constructor() {
     this.repo = AppDataSource.getRepository(User);
+    this.roleRepo = AppDataSource.getRepository(Roles)
   }
 
   // Create a new user
@@ -22,7 +23,9 @@ class UserService {
 
   // Get all users
   async getAllUsers() {
-    return await this.repo.find();
+    return await this.repo.find({
+      relations: ["roles"],
+    });
   }
 
   // Get user by ID
@@ -46,6 +49,11 @@ class UserService {
     const user = await this.getUserById(id);
     await this.repo.remove(user);
     return { message: "User deleted successfully" };
+  }
+
+  async getAllRoles() {
+    const allRoles = await this.roleRepo.find()
+    return allRoles
   }
 }
 

@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs'
 import { AppDataSource } from '../config/database.js'
-import {entities} from '../entities/index.js'
 import AppError from '../utils/AppError.js'
 import catchAsync from '../utils/catchAsync.js'
 import { generateToken } from '../middleware/auth.js'
+import { User } from '../entities/User.js'
 
 /**
  * User login
@@ -11,14 +11,15 @@ import { generateToken } from '../middleware/auth.js'
  */
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-
+    console.log({ email, password });
+    
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password', 400));
   }
 
   // 2) Check if user exists && password is correct
-  const userRepository = AppDataSource.getRepository(entities.User);
+  const userRepository = AppDataSource.getRepository(User);
   const user = await userRepository.findOne({ where: { email } });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -40,9 +41,7 @@ const login = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     token,
-    data: {
       user: userResponse
-    }
   });
 });
 
@@ -59,7 +58,7 @@ const register = catchAsync(async (req, res, next) => {
   }
 
   // 2) Check if user already exists
-  const userRepository = AppDataSource.getRepository(entities.User);
+  const userRepository = AppDataSource.getRepository(User);
   const existingUser = await userRepository.findOne({ where: { email } });
 
   if (existingUser) {
@@ -103,9 +102,14 @@ const register = catchAsync(async (req, res, next) => {
  */
 const getMe = catchAsync(async (req, res, next) => {
   // User already available from auth middleware
+  const userRepository = AppDataSource.getRepository(User);
+
   const userResponse = { ...req.user };
   delete userResponse.password;
-
+  
+  await userRepository.update(req.user.id, {
+    lastActiveAt: new Date(),
+  });
   res.status(200).json({
     status: 'success',
     data: {
@@ -127,7 +131,7 @@ const updatePassword = catchAsync(async (req, res, next) => {
   }
 
   // 2) Get user from database
-  const userRepository = AppDataSource.getRepository(entities.User);
+  const userRepository = AppDataSource.getRepository(User);
   const user = await userRepository.findOne({ where: { id: req.user.id } });
 
   // 3) Check if current password is correct
@@ -138,6 +142,9 @@ const updatePassword = catchAsync(async (req, res, next) => {
   // 4) Update password
   const hashedPassword = await bcrypt.hash(newPassword, 12);
   user.password = hashedPassword;
+  await userRepository.update(req.user.id, {
+    lastActiveAt: new Date(),
+  });
   await userRepository.save(user);
 
   // 5) Generate new token

@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/AppError.js';
 import { AppDataSource } from '../config/database.js';
-import {entities} from '../entities/index.js';
+import { User } from '../entities/User.js';
 
 // Get JWT secret from environment variables or use a default for development
 export const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -40,7 +40,7 @@ export const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, JWT_SECRET);
 
     // 3) Check if user still exists
-    const userRepository = AppDataSource.getRepository(entities.User);
+    const userRepository = AppDataSource.getRepository(User);
     const currentUser = await userRepository.findOne({ where: { id: decoded.id } });
 
     if (!currentUser) {

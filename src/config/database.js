@@ -11,7 +11,9 @@ import { Cart,
   Product,
   Seller,
   Store,
-  User
+  User,
+  Review,
+  Roles
 } from '../entities/index.js';
 
 
@@ -40,6 +42,9 @@ export const AppDataSource = new DataSource({
     Manager,
     Seller,
     Store,
+    Review,
+    Roles
+
   ]),
   migrations: [],
   subscribers: [],

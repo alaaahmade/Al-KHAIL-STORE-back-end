@@ -17,6 +17,7 @@ import commentRoutes from"./routes/commentRoutes.js";
 import commentReplyRoutes from"./routes/commentReplyRoutes.js";
 import storeRoutes from"./routes/storeRoutes.js";
 import authRoutes from"./routes/authRoutes.js";
+import reviews from "./routes/reviewRoutes.js";
 import dotenv from 'dotenv'
 import { TestDataSource } from './config/database.test.js';
 import { AppDataSource } from './config/database.js';
@@ -60,6 +61,7 @@ app.use("/api/v1/invoices", invoiceRoutes);
 app.use("/api/v1/comments", commentRoutes);
 app.use("/api/v1/comment-replies", commentReplyRoutes);
 app.use("/api/v1/stores", storeRoutes);
+app.use("/api/v1/reviews", reviews);
 
 app.use(errorHandler);
 

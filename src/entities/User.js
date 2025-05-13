@@ -22,6 +22,11 @@ export const User = new EntitySchema({
       unique: true,
       nullable: false,
     },
+    lastActiveAt: {
+      type: "timestamp",
+      nullable: true,
+      default: new Date()
+    },
     password: {
       type: "varchar",
       nullable: false,
@@ -74,5 +79,11 @@ export const User = new EntitySchema({
       target: "Manager",
       inverseSide: "user",
     },
+    roles: {
+      type: "many-to-many",
+      target: "Roles",
+      joinTable: true,
+      inverseSide: "users",
+    }
   },
 });

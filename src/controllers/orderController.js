@@ -338,6 +338,22 @@ const updateOrderStatus = catchAsync(async (req, res, next) => {
   });
 });
 
+const getRecentOrders = catchAsync(async (req, res, next) => {
+  const orders = await orderService.getRecentOrders();
+  
+  if (!orders || !Array.isArray(orders)) {
+    return next(new AppError('Failed to retrieve recent orders', 500));
+  }
+  
+  res.status(200).json({
+    status: "success",
+    results: orders.length,
+    data: {
+      orders,
+    },
+  });
+});
+
 export default {
   createOrder,
   getAllOrders,
@@ -347,4 +363,5 @@ export default {
   updateOrder,
   deleteOrder,
   updateOrderStatus,
+  getRecentOrders
 };
