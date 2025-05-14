@@ -3,7 +3,7 @@ import catchAsync from "../utils/catchAsync.js"
 import { AppDataSource } from "../config/database.js"
 import bcrypt from 'bcryptjs'
 
-import {entities, Invoice, Roles, Seller, Store, User} from "../entities/index.js"
+import { Invoice, Roles, Seller, Store, User} from "../entities/index.js"
 // Create a new seller
 const createSeller = async (sellerData) => {
   const {firstName,
