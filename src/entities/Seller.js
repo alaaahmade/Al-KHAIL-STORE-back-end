@@ -15,7 +15,7 @@ export const Seller = new EntitySchema({
     },
     storeId: {
       type: "bigint",
-      nullable: false,
+      nullable: true,
     },
     isActive: {
       type: "boolean",

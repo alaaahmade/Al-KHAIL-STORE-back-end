@@ -14,6 +14,7 @@ import { Cart,
   User,
   Roles
 } from './entities/index.js';
+
 async function createUserIfNotExists(repo, data, roleEntities) {
   const existing = await repo.findOne({ where: { email: data.email }, relations: ['roles'] });
   if (existing) {
