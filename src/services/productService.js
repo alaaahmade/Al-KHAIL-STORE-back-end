@@ -95,6 +95,15 @@ class ProductService {
 
     return await this.getRepository().save(product);
   }
+
+  async getProductsByStoreId(storeId) {
+    const ProductRepo = AppDataSource.getRepository(Product);
+
+    return await ProductRepo.find({
+      where: { store: { id: storeId } },
+      relations: ["category", "store", "comments", "category", "comments"],
+    });
+  }
 }
 
 export default new ProductService();

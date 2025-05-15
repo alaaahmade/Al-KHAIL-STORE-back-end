@@ -35,7 +35,7 @@ const login = catchAsync(async (req, res, next) => {
   const token = generateToken(user);
 
   // Remove password from output
-  const userResponse = { ...user };
+  const userResponse = await userRepository.findOne({ where: { id: user.id }, relations: ["seller", "seller.store"] });
   delete userResponse.password;
 
   res.status(200).json({
@@ -84,7 +84,7 @@ const register = catchAsync(async (req, res, next) => {
   const token = generateToken(newUser);
 
   // Remove password from output
-  const userResponse = { ...newUser };
+  const userResponse = await userRepository.findOne({ where: { id: newUser.id }, relations: ["seller", "seller.store"] });
   delete userResponse.password;
 
   res.status(201).json({
@@ -103,8 +103,8 @@ const register = catchAsync(async (req, res, next) => {
 const getMe = catchAsync(async (req, res, next) => {
   // User already available from auth middleware
   const userRepository = AppDataSource.getRepository(User);
-
-  const userResponse = { ...req.user };
+  const user = await userRepository.findOne({ where: { id: req.user.id }, relations: ["seller", "seller.store"] });
+  const userResponse = { ...req.user, ...user };
   delete userResponse.password;
   
   await userRepository.update(req.user.id, {

@@ -33,9 +33,41 @@ export const Store = new EntitySchema({
       type: "varchar",
       nullable: false,
     },
+    tagline: {
+      type: "varchar",
+      nullable: true,
+      default: "Your one-stop beauty shop",
+    },
+    storeType: {
+      type: "varchar",
+      nullable: true,
+      default: "Online Store",
+    },
     isActive: {
       type: "boolean",
       default: true,
+    },
+    businessHours: {
+      type: "jsonb",
+      nullable: true,
+      default: JSON.stringify({
+    monday: '9:00 AM - 6:00 PM',
+    tuesday: '9:00 AM - 6:00 PM',
+    wednesday: '9:00 AM - 6:00 PM',
+    thursday: '9:00 AM - 6:00 PM',
+    friday: '9:00 AM - 8:00 PM',
+    saturday: '10:00 AM - 7:00 PM',
+    sunday: 'Closed',
+  }),
+    },
+    socialLinks: {
+      type: "jsonb",
+      nullable: true,
+      default: JSON.stringify({
+        instagram: 'https://instagram.com/michaelsbeauty',
+        facebook: 'https://facebook.com/michaelsbeautystore',
+        tiktok: 'https://tiktok.com/@michaelsbeauty',
+      }),
     },
     createdAt: {
       type: "timestamp",

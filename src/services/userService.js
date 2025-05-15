@@ -30,10 +30,18 @@ class UserService {
 
   // Get user by ID
   async getUserById(id) {
-    const user = await this.repo.findOne({ where: { id } });
+    const user = await this.repo.findOne({ where: { id }, relations: ["roles",
+      "comments",
+      "cart",
+      "seller",
+      "seller.store",
+      "manager",
+    ] });
     if (!user) {
       throw new AppError("User not found", 404);
     }
+
+    delete user.password;
     return user;
   }
 

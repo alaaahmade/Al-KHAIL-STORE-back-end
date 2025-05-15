@@ -54,7 +54,6 @@ const createCategory = catchAsync(async (req, res, next) => {
 const getAllCategories = catchAsync(async (req, res, next) => {
   console.log("Getting all categories...");
   const categories = await categoryService.getAllCategories();
-  console.log("Categories returned:", categories);
   res.status(200).json({
     status: "success",
     results: categories.length,

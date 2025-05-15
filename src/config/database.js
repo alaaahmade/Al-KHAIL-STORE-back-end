@@ -1,21 +1,6 @@
 import { DataSource } from 'typeorm';
 import dotenv from "dotenv";
-import { Cart,
-  CartItem,
-  Category,
-  Comment,
-  CommentReply,
-  Invoice,
-  Manager,
-  Order,
-  Product,
-  Seller,
-  Store,
-  User,
-  Review,
-  Roles
-} from '../entities/index.js';
-
+import { entities as allEntities } from '../entities/index.js';
 
 dotenv.config();
 
@@ -29,23 +14,7 @@ export const AppDataSource = new DataSource({
   synchronize: process.env.DB_SYNC === "true", 
   dropSchema: process.env.DB_DROP === "true", 
   logging: false,
-  entities: Object.values([
-    User,
-    Product,
-    Category,
-    Cart,
-    CartItem,
-    Order,
-    Invoice,
-    Comment,
-    CommentReply,
-    Manager,
-    Seller,
-    Store,
-    Review,
-    Roles
-
-  ]),
+  entities: allEntities,
   migrations: [],
   subscribers: [],
   migrationsRun: false,

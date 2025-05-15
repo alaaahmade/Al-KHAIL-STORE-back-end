@@ -12,6 +12,9 @@ import {Seller} from "./Seller.js";
 import {Store} from "./Store.js";
 import { Review } from './Review.js';
 import {Roles} from './roles.js'
+import {ChatRoom} from './ChatRoom.js';
+import {Message} from './Message.js';
+
 const entities = [
   User,
   Product,
@@ -26,7 +29,9 @@ const entities = [
   Seller,
   Store,
   Review,
-  Roles
+  Roles,
+  ChatRoom,
+  Message
 ]
 
 export {
@@ -44,7 +49,7 @@ export {
   Store,
   entities,
   Review,
-  Roles
+  Roles,
+  ChatRoom,
+  Message
 }
-
-
