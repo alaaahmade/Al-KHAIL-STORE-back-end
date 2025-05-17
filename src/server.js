@@ -4,37 +4,59 @@ import dotenv from "dotenv";
 dotenv.config(); 
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+import { disActivateUser, handleIsActive } from './controllers/userController.js';
+import { deleteMessageService, sendMessage } from './controllers/chatController.js';
+
 
 const PORT = process.env.PORT || 3000;
 
-// Create HTTP server from Express app
-const httpServer = http.createServer(app);
+const httpServer = http.createServer(app)
 
-// Initialize Socket.IO server
-const io = new SocketIOServer(httpServer, {
+export const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: ["http://localhost:8084", "http://localhost:3000"], 
-    methods: ["GET", "POST"]
-  }
+    origin: (ori, callback) => {
+      if (/^http:\/\/localhost(:\d+)?$/.test(ori)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: '*',
+  },
 });
 
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log(`Socket connected: ${socket.id}`);
+io.on('connection', socket => {
+  const userId = socket.handshake.auth.userId;
+  console.log('`⚡:User connected with ID:', userId);
+
+  handleIsActive(userId);
+
+  socket.on('message', async ({ romeId, senderId, content }) => {
+    console.log({romeId, senderId, content});    
+    io.emit('messageResponse', newMessage);
+  })  
+
+  socket.on('delete', async ({ id }) => {
+    const response = await deleteMessageService(id.toString());
+    const { deletedMessage } = response.data;
+
+    io.emit('messageDeleted', deletedMessage);
+  });
 
   socket.on('disconnect', () => {
-    console.log(`Socket disconnected: ${socket.id}`);
+    const userId = socket.handshake.auth.userId;
+    console.log('`⚡:🔥: A user disconnected with ID:', userId);
+    try {
+      disActivateUser(userId)
+      
+    } catch (error) {
+      console.log(error);
+      
+    }
+    
   });
-
-  // Handle client joining a room
-  socket.on('joinRoom', (roomId) => {
-    socket.join(roomId);
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
-  });
-
-  // Placeholder for other chat-related events
-  // socket.on('chatMessage', (msg) => { ... });
 });
+
 
 // Initialize database connection
 const initializeDatabase = async () => {
@@ -43,9 +65,10 @@ const initializeDatabase = async () => {
     console.log("Database connected successfully");
 
     httpServer.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      console.log(`server is running on port ${PORT}`);
       console.log(`API Documentation available at http://localhost:${PORT}/api-docs`);
     });
+    
   } catch (error) {
     if (error.code === "42P07") {
       console.log("Tables already exist, continuing with existing schema...");
@@ -61,5 +84,3 @@ const initializeDatabase = async () => {
 };
 
 initializeDatabase();
-
-export { io }; 

@@ -63,6 +63,19 @@ class UserService {
     const allRoles = await this.roleRepo.find()
     return allRoles
   }
+
+  async activateUser (userId) {
+    const user = await this.repo.findOneBy({id: userId})
+    user.isActive = true
+    await this.repo.save(user);
+  }
+
+  async disActivateUser( userId) {
+    const user = await this.repo.findOneBy({id: userId})
+    user.isActive = false
+    await this.repo.save(user);
+  }
 }
+
 
 export default  new UserService();

@@ -181,11 +181,20 @@ const getAllRoles = catchAsync(async (req, res) => {
 });
 
 
+export const handleIsActive = catchAsync(async (userId) => {
+   await userService.activateUser(userId);
+})
+
+export const disActivateUser = catchAsync((userId) => {
+  userService.disActivateUser( userId)
+})
+
+
 export default {
   getAllUsers,
   getUser,
   createUser,
   updateUser,
   deleteUser,
-  getAllRoles
+  getAllRoles,
 }

@@ -26,11 +26,6 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
 
-  // 3) Check if user is active
-  if (!user.isActive) {
-    return next(new AppError('This account has been deactivated', 401));
-  }
-
   // 4) If everything ok, send token to client
   const token = generateToken(user);
 
@@ -101,9 +96,10 @@ const register = catchAsync(async (req, res, next) => {
  * @route GET /api/auth/me
  */
 const getMe = catchAsync(async (req, res, next) => {
-  // User already available from auth middleware
+  // User already available from auth middleware  
   const userRepository = AppDataSource.getRepository(User);
   const user = await userRepository.findOne({ where: { id: req.user.id }, relations: ["seller", "seller.store"] });
+  
   const userResponse = { ...req.user, ...user };
   delete userResponse.password;
   

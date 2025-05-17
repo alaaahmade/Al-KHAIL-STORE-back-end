@@ -47,11 +47,6 @@ export const protect = async (req, res, next) => {
       return next(new AppError('The user belonging to this token no longer exists.', 401));
     }
 
-    // 4) Check if user is active
-    if (!currentUser.isActive) {
-      return next(new AppError('This user account has been deactivated.', 401));
-    }
-
     // 5) Grant access to protected route
     req.user = currentUser;
     next();

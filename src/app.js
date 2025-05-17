@@ -1,5 +1,5 @@
 import "reflect-metadata"
-import express from"express";
+import express, { json, urlencoded } from"express";
 import cors from"cors";
 import morgan from"morgan";
 import swaggerUi from"swagger-ui-express";
@@ -22,6 +22,7 @@ import chatRoutes from './routes/chatRoutes.js';
 import dotenv from 'dotenv'
 import { TestDataSource } from './config/database.test.js';
 import { AppDataSource } from './config/database.js';
+import AppError from './utils/AppError.js';
 dotenv.config();
 
 
@@ -42,9 +43,13 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 }));
 
-app.use(morgan("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use([
+  json(),
+  urlencoded({ extended: false }),
+  // cookieParser(),
+  cors(),
+  morgan('dev'),
+]);
 // Swagger Documentation
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -69,7 +74,7 @@ app.use(errorHandler);
 
 // Handle unhandled routes
 app.all("*", (req, res, next) => {
-  const error = new Error(`Can't find ${req.originalUrl} on this server!`);
-  error.status = 404;
+  const error = new AppError(`Can't find ${req.originalUrl} on this server!`,404 );
+  // error.status = 404;
   next(error);
 });

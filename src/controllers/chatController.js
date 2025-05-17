@@ -98,12 +98,9 @@ export const getUserChatRooms = async (req, res, next) => {
   }
 };
 
-export const sendMessage = async (req, res, next) => {
-  const { roomId } = req.params;
-  const { senderId, content } = req.body;
-
+export const sendMessage = async ({roomId, senderId, content}) => {
   if (!senderId || !content) {
-    return res.status(400).json({ message: 'Sender ID and content are required.' });
+    return { status: 400, message: 'Missing senderId or content.' };
   }
 
   const messageRepository = getMessageRepository();
@@ -142,12 +139,11 @@ export const sendMessage = async (req, res, next) => {
         relations: ['sender', 'chatRoom'] 
     });
 
-    io.to(roomId).emit('newMessage', savedMessage);
+    return savedMessage
 
-    return res.status(201).json(savedMessage);
   } catch (error) {
     console.error('Error in sendMessage:', error);
-    next(error);
+
   }
 };
 
@@ -200,4 +196,15 @@ export const getRomeById = async (req, res, next) => {
     console.error('Error in getChatRoomById:', error);
     next(error);
   }
+};
+
+
+export const deleteMessageService = async (messageId) => {
+  const messageRepository = getMessageRepository();
+  const response = await messageRepository.delete({ id: messageId });
+  console.log(response);
+  
+  return {
+    data: response
+  };
 };
