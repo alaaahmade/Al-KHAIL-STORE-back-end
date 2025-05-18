@@ -123,23 +123,29 @@ const getAllSellers = async () => {
 
 
 // Get seller by ID
-const getSeller = catchAsync(async (id) => {
+const getSeller = async (id) => {
   const sellerRepository = AppDataSource.getRepository(Seller);
   const seller = await sellerRepository.findOne({
     where: { id },
-    relations: ["user", "store", "products"]
+    relations: ["user", "store", "store.products", "store.products.comments", "store.products.category"]
   });
+
   
   if (!seller) {
     throw new AppError("No seller found with that ID", 404);
   }
+
+  const totalReview = seller.store.products.reduce((total, product) => {
+    return total + product.comments.length;
+  }, 0);
+  seller.store.totalReview = totalReview;
+
   return seller;
-});
+};
 
 // Update seller
-const updateSeller = catchAsync(async (id, updateData) => {
-  const sellerRepository = AppDataSource.getRepository(Seller);
-  
+const updateSeller = async (id, updateData) => {
+  const sellerRepository = AppDataSource.getRepository(Seller);    
   // First find the seller
   const seller = await sellerRepository.findOne({
     where: { id }
@@ -154,10 +160,10 @@ const updateSeller = catchAsync(async (id, updateData) => {
   
   // Save the updated seller
   return await sellerRepository.save(seller);
-});
+};
 
 // Delete seller
-const deleteSeller = catchAsync(async (id) => {
+const deleteSeller = async (id) => {
   const sellerRepository = AppDataSource.getRepository(Seller);
   
   const seller = await sellerRepository.findOne({
@@ -170,10 +176,10 @@ const deleteSeller = catchAsync(async (id) => {
   
   await sellerRepository.remove(seller);
   return true;
-});
+};
 
 // Get seller by user ID
-const getSellerByUser = catchAsync(async (userId) => {
+const getSellerByUser = async (userId) => {
   const sellerRepository = AppDataSource.getRepository(Seller);
   
   const seller = await sellerRepository.findOne({
@@ -186,10 +192,10 @@ const getSellerByUser = catchAsync(async (userId) => {
   }
   
   return seller;
-});
+};
 
 // Get sellers by store ID
-const getSellersByStore = catchAsync(async (storeId) => {
+const getSellersByStore = async (storeId) => {
   const sellerRepository = AppDataSource.getRepository(Seller);
   
   const sellers = await sellerRepository.find({
@@ -198,10 +204,10 @@ const getSellersByStore = catchAsync(async (storeId) => {
   });
   
   return sellers;
-});
+};
 
 // Update seller status
-const updateStatus = catchAsync(async (id, status) => {
+const updateStatus = async (id, status) => {
   const sellerRepository = AppDataSource.getRepository(Seller);
   
   const seller = await sellerRepository.findOne({
@@ -215,7 +221,7 @@ const updateStatus = catchAsync(async (id, status) => {
   seller.isActive = status === 'active';
   
   return await sellerRepository.save(seller);
-});
+};
 
 
 export default {
