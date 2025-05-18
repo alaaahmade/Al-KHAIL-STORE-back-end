@@ -57,6 +57,11 @@ export const User = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
       onUpdate: "CURRENT_TIMESTAMP",
     },
+    stripeCustomerId: {
+      type: "varchar",
+      nullable: true,
+      unique: true,
+    },
   },
   relations: {
     comments: {
