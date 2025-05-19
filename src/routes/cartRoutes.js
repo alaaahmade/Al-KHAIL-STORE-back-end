@@ -1,36 +1,43 @@
 import express from "express"
-import cartController from "../controllers/cartController.js"
+import cartController, { emptyCartController } from "../controllers/cartController.js"
+import { protect, isOwnerOrAdmin } from "../middleware/auth.js"
 
 const router = express.Router();
 
-// Base routes
+// Base routes (admin/manager only for all carts)
 router
   .route("/")
-  .post(cartController.createCart)
-  .get(cartController.getAllCarts);
+  .post(protect, cartController.createCart)
+  .get(protect, isOwnerOrAdmin(() => null), cartController.getAllCarts); // Only admin/manager should see all carts
 
-// Special routes - specific routes should come before generic routes to avoid conflicts
-router.get("/user/:userId", cartController.getUserCart);
+// Get a user's cart (only owner or admin/manager)
+router.get("/user/:userId", protect, isOwnerOrAdmin(req => req.params.userId), cartController.getUserCart);
 
-// Routes with ID
+// Cart by ID (only owner or admin/manager)
 router
   .route("/:id")
-  .get(cartController.getCart)
-  .patch(cartController.updateCart)
-  .delete(cartController.deleteCart);
+  .get(protect, cartController.getCart)
+  .patch(protect, isOwnerOrAdmin(async req => {
+    return req.user.id;
+  }), cartController.updateCart)
+  .delete(protect, isOwnerOrAdmin(async req => {
+    return req.user.id;
+  }), cartController.deleteCart);
 
-// Cart checkout route
-router.post("/:id/checkout", cartController.checkoutCart);
+// Cart checkout (only owner or admin/manager)
+router.post("/:id/checkout", protect, cartController.checkoutCart);
 
-// Cart items routes
+// Cart items routes (only owner or admin/manager)
 router
   .route("/:id/items")
-  .get(cartController.getCartItems)
-  .post(cartController.addCartItem);
+  .get(protect, isOwnerOrAdmin(async req => req.user.id), cartController.getCartItems)
+  .post(protect, isOwnerOrAdmin(async req => req.user.id), cartController.addCartItem)
+  .delete(protect, isOwnerOrAdmin(async req => req.user.id), emptyCartController)
+  // .patch(protect, isOwnerOrAdmin(async req => req.user.id), cartController.removeCartItem);
 
 router
   .route("/:id/items/:itemId")
-  .patch(cartController.updateCartItem)
-  .delete(cartController.removeCartItem);
+  .patch(protect, isOwnerOrAdmin(async req => req.user.id), cartController.updateCartItem)
+  .delete(protect, isOwnerOrAdmin(async req => req.user.id), cartController.removeCartItem);
 
   export default  router;

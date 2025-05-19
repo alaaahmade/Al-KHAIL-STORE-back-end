@@ -48,4 +48,6 @@ router.route("/:id/status").patch(
   orderController.updateOrderStatus
 );
 
+router.get('/session/:sessionId', orderController.getOrderbySessionId)
+
 export default router;

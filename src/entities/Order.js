@@ -69,6 +69,11 @@ export const Order = new EntitySchema({
       type: "timestamp",
       updateDate: true,
     },
+    stripeSessionId: {
+      type: "varchar",
+      length: 255,
+      nullable: true,
+    }
   },
   relations: {
     user: {

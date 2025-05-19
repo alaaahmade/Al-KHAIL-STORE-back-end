@@ -1,10 +1,13 @@
+import Stripe from 'stripe'
 import { AppDataSource } from "../config/database.js";
-import { Cart, CartItem } from "../entities/index.js";
+import { Cart, CartItem, Product, Order } from "../entities/index.js";
 import AppError from "../utils/AppError.js";
 
 // Repositories
 const cartRepository = AppDataSource.getRepository(Cart);
 const cartItemRepository = AppDataSource.getRepository(CartItem);
+const productRepository = AppDataSource.getRepository(Product);
+const orderRepository = AppDataSource.getRepository(Order);
 
 // Create a new cart
 const createCart = async (cartData) => {
@@ -17,30 +20,43 @@ const getAllCarts = async () => {
   return await cartRepository.find({ relations: ["items"] });
 };
 
-// Get cart by ID
-const getCart = async (id) => {
+// Get cart by ID and check ownership
+const getCart = async (id, userId, userRole) => {
   const cart = await cartRepository.findOne({
     where: { id },
-    relations: ["items"],
+    relations: ["items", "items.product"],
   });
   if (!cart) {
     throw new AppError("No cart found with that ID", 404);
+  }
+  if (cart.userId.toString() !== userId.toString()) {
+    throw new AppError("You do not have permission to access this cart", 403);
   }
   return cart;
 };
 
 // Update cart
-const updateCart = async (id, updateData) => {
+const updateCart = async (id, userId, userRole, updateData) => {
   const cart = await cartRepository.findOne({ where: { id } });
   if (!cart) {
     throw new AppError("No cart found with that ID", 404);
+  }
+  if (userRole !== 'ADMIN' && userRole !== 'MANAGER' && cart.userId.toString() !== userId.toString()) {
+    throw new AppError("You do not have permission to update this cart", 403);
   }
   Object.assign(cart, updateData);
   return await cartRepository.save(cart);
 };
 
 // Delete cart
-const deleteCart = async (id) => {
+const deleteCart = async (id, userId, userRole) => {
+  const cart = await cartRepository.findOne({ where: { id } });
+  if (!cart) {
+    throw new AppError("No cart found with that ID", 404);
+  }
+  if (cart.userId.toString() !== userId.toString()) {
+    throw new AppError("You do not have permission to delete this cart", 403);
+  }
   const result = await cartRepository.delete(id);
   if (result.affected === 0) {
     throw new AppError("No cart found with that ID", 404);
@@ -53,39 +69,38 @@ const getCartItems = async (cartId) => {
 };
 
 // Add item to cart
-const addCartItem = async (cartId, itemData) => {
-  // Get the cart with its existing items
+const addCartItem = async (cartId, userId, userRole, itemData) => {
   const cart = await cartRepository.findOne({ 
     where: { id: cartId },
     relations: ["items"]
   });
-  
   if (!cart) {
     throw new AppError("Cart not found", 404);
   }
-  
-  // Check if product exists in the product repository if needed
-  
+  if ( cart.userId.toString() !== userId.toString()) {
+    throw new AppError("You do not have permission to add items to this cart", 403);
+  }
+  // Check if product exists and has enough stock
+  const product = await productRepository.findOne({ where: { id: itemData.productId } });
+  if (!product) {
+    throw new AppError("Product not found", 404);
+  }
+  if (parseFloat(product.productQuantity) < (itemData.quantity || 1)) {
+    throw new AppError("Not enough product stock", 400);
+  }
   // Check if this product is already in the cart, if so, update quantity instead
   const existingItem = cart.items ? cart.items.find(
     item => item.productId.toString() === itemData.productId.toString()
   ) : null;
-  
   let savedItem;
-  
   if (existingItem) {
-    // Update existing item
     existingItem.quantity += itemData.quantity || 1;
     savedItem = await cartItemRepository.save(existingItem);
   } else {
-    // Create new item
     const item = cartItemRepository.create({ ...itemData, cart });
     savedItem = await cartItemRepository.save(item);
   }
-  
-  // Update cart total
   await updateCartTotal(cart.id);
-  
   return savedItem;
 };
 
@@ -107,48 +122,42 @@ async function updateCartTotal(cartId) {
 }
 
 // Update cart item
-const updateCartItem = async (itemId, updateData) => {
+const updateCartItem = async (itemId, userId, userRole, updateData) => {
   const item = await cartItemRepository.findOne({ 
     where: { id: itemId },
     relations: ["cart"]
   });
-  
   if (!item) {
     throw new AppError("No cart item found with that ID", 404);
   }
-  
+  if (item.cart.userId.toString() !== userId.toString()) {
+    throw new AppError("You do not have permission to update this item", 403);
+  }
   Object.assign(item, updateData);
   const savedItem = await cartItemRepository.save(item);
-  
-  // Update cart total
   if (item.cart && item.cart.id) {
     await updateCartTotal(item.cart.id);
   }
-  
   return savedItem;
 };
 
 // Remove item from cart
-const removeCartItem = async (itemId) => {
-  // First get the item to know which cart to update
+const removeCartItem = async (itemId, userId, userRole) => {
   const item = await cartItemRepository.findOne({ 
     where: { id: itemId },
     relations: ["cart"] 
   });
-  
   if (!item) {
     throw new AppError("No cart item found with that ID", 404);
   }
-  
+  if (item.cart.userId.toString() !== userId.toString()) {
+    throw new AppError("You do not have permission to remove this item", 403);
+  }
   const cartId = item.cart.id;
-  
-  // Delete the item
   const result = await cartItemRepository.delete(itemId);
   if (result.affected === 0) {
     throw new AppError("Failed to remove cart item", 500);
   }
-  
-  // Update cart total
   await updateCartTotal(cartId);
 };
 
@@ -185,46 +194,127 @@ const getUserCart = async (userId) => {
 };
 
 // Checkout cart
-const checkoutCart = async (cartId) => {
+const checkoutCart = async (cartId, userId, userRole, orderData) => {
   const cart = await cartRepository.findOne({
     where: { id: cartId },
-    relations: ["items"],
+    relations: ["items", "items.product"],
   });
-  
   if (!cart) {
     throw new AppError("No cart found with that ID", 404);
   }
-  
+  if (cart.userId.toString() !== userId.toString()) {
+    throw new AppError("You do not have permission to checkout this cart", 403);
+  }
   if (!cart.items || cart.items.length === 0) {
     throw new AppError("Cannot checkout an empty cart", 400);
   }
-  
-  // Calculate the total price from cart items
-  let totalPrice = 0;
+  // Validate all products have a name
   for (const item of cart.items) {
-    totalPrice += parseFloat(item.price) * item.quantity;
+    if (!item.product || !item.product.productName) {
+      throw new AppError(`Product with ID ${item.product?.id || 'unknown'} is missing a name. Cannot proceed to checkout.`, 400);
+    }
   }
-  
-  // Update the cart total
-  cart.total = totalPrice;
-  await cartRepository.save(cart);
-  
-  // In a real application, you would create an order here
-  // and then clear the cart or mark it as checked out
-  
-  return { 
-    message: "Cart checked out successfully",
-    cartTotal: totalPrice,
-    itemCount: cart.items.length
-  };
+  // Stripe integration
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  // Prepare line items
+  const line_items = cart.items.map(item => {
+    const productData = {
+      name: item.product.productName || 'Unnamed Product',
+      images: item.product.productImage ? [item.product.productImage] : [],
+    };
+    if (item.product.productDescription && item.product.productDescription.trim().length > 0) {
+      productData.description = item.product.productDescription;
+    }
+    return {
+      price_data: {
+        currency: 'usd',
+        product_data: productData,
+        unit_amount: Math.round(parseFloat(item.price) * 100),
+      },
+      quantity: item.quantity,
+    };
+  });
+  // Add shipping and tax as separate line items if desired
+  if (orderData.shippingFee) {
+    line_items.push({
+      price_data: {
+        currency: 'usd',
+        product_data: { name: 'Shipping Fee' },
+        unit_amount: Math.round(orderData.shippingFee * 100),
+      },
+      quantity: 1,
+    });
+  }
+  if (orderData.tax) {
+    line_items.push({
+      price_data: {
+        currency: 'usd',
+        product_data: { name: 'Tax' },
+        unit_amount: Math.round(orderData.tax * 100),
+      },
+      quantity: 1,
+    });
+  }
+  // Create Stripe Checkout Session
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ['card'],
+    line_items,
+    mode: 'payment',
+    customer_email: orderData.shipping?.email || orderData.email,
+    success_url: `${process.env.FRONTEND_URL}/checkout/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.FRONTEND_URL}/checkout/details`,
+    metadata: {
+      cartId: cart.id.toString(),
+      userId: cart.userId.toString(),
+    },
+  });  
+
+  const order = {
+    cartId: cart.id,
+    userId: cart.userId,
+    stripeSessionId: session.id,
+    orderNumber: `ORD-${Date.now()}`,
+    orderStatus: 'Processing',
+    orderDate: new Date(),
+    paymentInfo: session.payment_intent || session.id,
+    country: session.shipping?.address?.country || '',
+    city: session.shipping?.address?.city || '',
+    streetAddress: session.shipping?.address?.line1 || '',
+    userId: userId,
+    phoneNumber: session.customer_details?.phone || '',
+    email: session.customer_details?.email || session.customer_email || '',
+    stripeSessionId: session.id,
+  }
+
+  // IMPORTANT: When creating the order, make sure to include stripeSessionId: session.id
+  return { sessionId: session.id, stripeSessionId: session.id, orderData: order };
 };
 
 
-export default {
+export const emptyCart =async (cartId) => {
+  const cart = await cartRepository.findOne({ where: { id: cartId } });
+  if (!cart) {
+    throw new AppError("Cart not found", 404);
+  }
+
+  cart.total = 0;
+
+  await cartRepository.save(cart);
+
+  const cartItemRepository = AppDataSource.getRepository(CartItem);
+  return cartItemRepository.delete({ cart: { id: cartId } });
+}
+
+export {
+  createCart,
+  getAllCarts,
+  getCart,
+  updateCart,
+  deleteCart,
   getCartItems,
   addCartItem,
   updateCartItem,
   removeCartItem,
   getUserCart,
-  checkoutCart,
-}
+  checkoutCart
+};

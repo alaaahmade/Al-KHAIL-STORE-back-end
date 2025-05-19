@@ -1,4 +1,6 @@
-import cartService from "../services/cartService.js";
+import { AppDataSource } from '../config/database.js';
+import { Order } from '../entities/Order.js';
+import * as cartService from "../services/cartService.js";
 import catchAsync from "../utils/catchAsync.js";
 
 /**
@@ -67,7 +69,11 @@ const getAllCarts = catchAsync(async (req, res) => {
  *         description: Cart not found
  */
 const getCart = catchAsync(async (req, res) => {
-  const cart = await cartService.getCart(req.params.id);
+  const cart = await cartService.getCart(
+    req.params.id,
+    req.user.id,
+    req.user.role
+  );
   res.status(200).json({
     status: "success",
     data: cart,
@@ -104,7 +110,12 @@ const getCart = catchAsync(async (req, res) => {
  *         description: Cart not found
  */
 const updateCart = catchAsync(async (req, res) => {
-  const cart = await cartService.updateCart(req.params.id, req.body);
+  const cart = await cartService.updateCart(
+    req.params.id,
+    req.user.id,
+    req.user.role,
+    req.body
+  );
   res.status(200).json({
     status: "success",
     data: cart,
@@ -130,7 +141,11 @@ const updateCart = catchAsync(async (req, res) => {
  *         description: Cart not found
  */
 const deleteCart = catchAsync(async (req, res) => {
-  await cartService.deleteCart(req.params.id);
+  await cartService.deleteCart(
+    req.params.id,
+    req.user.id,
+    req.user.role
+  );
   res.status(204).json({
     status: "success",
     data: null,
@@ -194,7 +209,12 @@ const getCartItems = catchAsync(async (req, res) => {
  *         description: Item added to cart successfully
  */
 const addCartItem = catchAsync(async (req, res) => {
-  const item = await cartService.addCartItem(req.params.id, req.body);
+  const item = await cartService.addCartItem(
+    req.params.id,
+    req.user.id,
+    req.user.role,
+    req.body
+  );
   res.status(201).json({
     status: "success",
     data: item,
@@ -234,7 +254,12 @@ const addCartItem = catchAsync(async (req, res) => {
  *         description: Cart item updated successfully
  */
 const updateCartItem = catchAsync(async (req, res) => {
-  const item = await cartService.updateCartItem(req.params.itemId, req.body);
+  const item = await cartService.updateCartItem(
+    req.params.itemId,
+    req.user.id,
+    req.user.role,
+    req.body
+  );
   res.status(200).json({
     status: "success",
     data: item,
@@ -263,7 +288,11 @@ const updateCartItem = catchAsync(async (req, res) => {
  *         description: Item removed from cart successfully
  */
 const removeCartItem = catchAsync(async (req, res) => {
-  await cartService.removeCartItem(req.params.itemId);
+  await cartService.removeCartItem(
+    req.params.itemId,
+    req.user.id,
+    req.user.role
+  );
   res.status(204).json({
     status: "success",
     data: null,
@@ -311,13 +340,27 @@ const getUserCart = catchAsync(async (req, res) => {
  *         description: Cart checked out successfully
  */
 const checkoutCart = catchAsync(async (req, res) => {
-  const order = await cartService.checkoutCart(req.params.id);
+  const {orderData, sessionId, stripeSessionId} = await cartService.checkoutCart(
+    req.params.id,
+    req.user.id,
+    req.user.role,
+    req.body // orderData
+  );
+  const orderRepository = AppDataSource.getRepository(Order);
+  const order =await orderRepository.create(orderData);
+
+  await orderRepository.save(order);
+  
   res.status(200).json({
     status: "success",
-    data: order,
+    data: {sessionId, stripeSessionId, order},
   });
 });
 
+export const emptyCartController = (req) => {
+  
+  return cartService.emptyCart(req.params.id);
+}
 
 export default{
   createCart,

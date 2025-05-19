@@ -162,6 +162,20 @@ const getRecentOrders = async () => {
 };
 
 
+// Get order by Stripe session ID
+const getOrderBySessionId = async (stripeSessionId) => {
+  const order = await orderRepository.findOne({
+    where: { stripeSessionId },
+    relations: ["user", "cart", "cart.items", "cart.items.product"],
+  });
+  console.log(order);
+  
+  if (!order) {
+    throw new AppError("No order found with that Stripe session ID", 404);
+  }
+  return order;
+};
+
 export default {
   createOrder,
   getAllOrders,
@@ -171,5 +185,6 @@ export default {
   getOrdersByUser,
   getOrdersByStatus,
   updateOrderStatus,
-  getRecentOrders
+  getRecentOrders,
+  getOrderBySessionId
 }

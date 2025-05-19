@@ -18,7 +18,7 @@ const getAllStores = async () => {
 const getStoreById = async (id) => {
   const store = await storeRepository.findOne({
     where: { id },
-    relations: ["products"],
+    relations: ["products", "products.comments", "products.category", "seller", ],
   });
 
   if (!store) {

@@ -24,6 +24,7 @@ import { TestDataSource } from './config/database.test.js';
 import { AppDataSource } from './config/database.js';
 import AppError from './utils/AppError.js';
 import stripeRoutes from './routes/stripeRoutes.js';
+import stripeWebhook from './routes/stripeWebhook.js';
 dotenv.config();
 
 
@@ -71,7 +72,8 @@ app.use("/api/v1/stores", storeRoutes);
 app.use("/api/v1/reviews", reviews);
 app.use("/api/v1/chat", chatRoutes);
 app.use('/api/v1/payments', stripeRoutes);
-
+// Stripe webhook endpoint (must be before error handler and before body parsing middleware)
+app.use(stripeWebhook);
 
 app.use(errorHandler);
 

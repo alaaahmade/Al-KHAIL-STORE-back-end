@@ -55,7 +55,12 @@ import AppError from "../utils/AppError.js";
  *         description: Order created successfully
  */
 const createOrder = catchAsync(async (req, res, next) => {
-  const order = await orderService.createOrder(req.body);
+  // Ensure stripeSessionId is included if present
+  const orderData = { ...req.body };
+  if (req.body.stripeSessionId) {
+    orderData.stripeSessionId = req.body.stripeSessionId;
+  }
+  const order = await orderService.createOrder(orderData);
   
   // Verify order was created properly
   if (!order || !order.id) {
@@ -354,6 +359,21 @@ const getRecentOrders = catchAsync(async (req, res, next) => {
   });
 });
 
+const getOrderbySessionId = catchAsync(async (req, res, next) => {
+  const order = await orderService.getOrderBySessionId(req.params.sessionId);
+  
+  if (!order) {
+    return next(new AppError('Order not found', 404));
+  }
+  
+  res.status(200).json({
+    status: "success",
+    data: {
+      order,
+    },
+  });
+});
+
 export default {
   createOrder,
   getAllOrders,
@@ -363,5 +383,6 @@ export default {
   updateOrder,
   deleteOrder,
   updateOrderStatus,
-  getRecentOrders
+  getRecentOrders,getOrderbySessionId
+
 };
