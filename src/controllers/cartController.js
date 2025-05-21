@@ -1,5 +1,6 @@
 import { AppDataSource } from '../config/database.js';
 import { Order } from '../entities/Order.js';
+import { User } from '../entities/User.js';
 import * as cartService from "../services/cartService.js";
 import catchAsync from "../utils/catchAsync.js";
 
@@ -340,26 +341,24 @@ const getUserCart = catchAsync(async (req, res) => {
  *         description: Cart checked out successfully
  */
 const checkoutCart = catchAsync(async (req, res) => {
-  const {orderData, sessionId, stripeSessionId} = await cartService.checkoutCart(
+  const {order, sessionId, stripeSessionId} = await cartService.checkoutCart(
     req.params.id,
     req.user.id,
     req.user.role,
     req.body // orderData
   );
-  const orderRepository = AppDataSource.getRepository(Order);
-  const order =await orderRepository.create(orderData);
 
-  await orderRepository.save(order);
-  
+
+
   res.status(200).json({
     status: "success",
     data: {sessionId, stripeSessionId, order},
   });
 });
 
-export const emptyCartController = (req) => {
+export const emptyCartController = async(req, res) => {
   
-  return cartService.emptyCart(req.params.id);
+  return await cartService.emptyCart(req);
 }
 
 export default{

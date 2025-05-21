@@ -89,6 +89,11 @@ export const User = new EntitySchema({
       target: "Roles",
       joinTable: true,
       inverseSide: "users",
-    }
+    },
+    lastOrder: {
+      type: "one-to-one",
+      target: "Order",
+      inverseSide: "user",
+    },
   },
 });

@@ -20,7 +20,7 @@ router.route('/latest').get(reviewController.getLatest);
 //   .delete(reviewController.deleteReview);
 
 // // Special routes
-// router.get("/product/:productId", reviewController.getReviewsByProduct);
+router.get("/product/:productId", reviewController.getReviewsByProduct);
 // router.get("/user/:userId", reviewController.getReviewsByUser);
 // router.get(
 //   "/product/:productId/average-rating",

@@ -346,6 +346,17 @@ const getProductsByStore = catchAsync(async (req, res) => {
   });
 });
 
+const getFeaturedProducts = catchAsync(async (req, res) => {
+  const products = await productService.getFeaturedProducts();
+  res.status(200).json({
+    status: "success",
+    results: products.length,
+    data: {
+      products,
+    },
+  });
+});
+
 
 export default {
   createProduct,
@@ -356,4 +367,5 @@ export default {
   addCategory,
   removeCategory,
   getProductsByStore,
+  getFeaturedProducts
 }

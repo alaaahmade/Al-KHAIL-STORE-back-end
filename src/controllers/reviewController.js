@@ -63,11 +63,20 @@ const getLatest = catchAsync(async (req, res, next) => {
   });
 });
 
+const getReviewsByProduct = catchAsync(async(req, res, next) => {
+    const result = await reviewService.getReviewsByProduct(req)
+    res.status(200).json({
+      status: 'success',
+      data: result
+    });
+})
+
 export default {
   getReview,
   createReview,
   updateReview,
   deleteReview,
   getLatest,
-  getAllReviews
+  getAllReviews,
+  getReviewsByProduct
 }

@@ -10,6 +10,9 @@ router
   .post(productController.createProduct);
 
 router
+  .get('/featured', productController.getFeaturedProducts); 
+
+router
   .route("/:id")
   .get(productController.getProduct)
   .patch(productController.updateProduct)
@@ -22,5 +25,6 @@ router
 
 // Store products route
 router.get("/store/:storeId", productController.getProductsByStore);
+
 
 export default router;

@@ -18,7 +18,7 @@ class ProductService {
   async getProductById(id) {
     const product = await this.getRepository().findOne({
       where: { id },
-      relations: ["category", "store", "comments"], // تعديل من "categories" إلى "category"
+      relations: ["category", "store", "comments", "comments.commentReplies"], // تعديل من "categories" إلى "category"
     });
 
     if (!product) {
@@ -104,6 +104,14 @@ class ProductService {
       relations: ["category", "store", "comments", "category", "comments"],
     });
   }
+
+  async getFeaturedProducts() {
+    return await this.getRepository().find({
+      where: { isFeatured: true },
+      relations: ["category", "store", "comments", "category", "comments"],
+    }); 
+  }
+
 }
 
 export default new ProductService();

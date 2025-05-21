@@ -359,18 +359,16 @@ const getRecentOrders = catchAsync(async (req, res, next) => {
   });
 });
 
+// Get order by Stripe session ID
+// Get order by Stripe session ID (for confirmation page)
 const getOrderbySessionId = catchAsync(async (req, res, next) => {
   const order = await orderService.getOrderBySessionId(req.params.sessionId);
-  
   if (!order) {
     return next(new AppError('Order not found', 404));
   }
-  
   res.status(200).json({
     status: "success",
-    data: {
-      order,
-    },
+    data: { order },
   });
 });
 

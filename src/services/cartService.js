@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 import { AppDataSource } from "../config/database.js";
-import { Cart, CartItem, Product, Order } from "../entities/index.js";
+import { Cart, CartItem, Product, Order, User } from "../entities/index.js";
 import AppError from "../utils/AppError.js";
 
 // Repositories
@@ -8,6 +8,7 @@ const cartRepository = AppDataSource.getRepository(Cart);
 const cartItemRepository = AppDataSource.getRepository(CartItem);
 const productRepository = AppDataSource.getRepository(Product);
 const orderRepository = AppDataSource.getRepository(Order);
+const userReposetry = AppDataSource.getRepository(User)
 
 // Create a new cart
 const createCart = async (cartData) => {
@@ -166,8 +167,8 @@ const getUserCart = async (userId) => {
   // First, try to find the cart using userId
   try {
     const cart = await cartRepository.findOne({
-      where: { userId: userId },
-      relations: ["items", "items.product"] // Added items.product to get product details
+      where: { userId: userId, status: 'active' },
+      relations: ["items", "items.product"]
     });
     
     if (!cart) {
@@ -194,7 +195,12 @@ const getUserCart = async (userId) => {
 };
 
 // Checkout cart
+// Checkout cart: Only creates Stripe session and order, does not mutate cart status
 const checkoutCart = async (cartId, userId, userRole, orderData) => {
+  const orderRepository = AppDataSource.getRepository(Order);
+  const cartRepository = AppDataSource.getRepository(Cart);
+  const userRepository = AppDataSource.getRepository(User);
+
   const cart = await cartRepository.findOne({
     where: { id: cartId },
     relations: ["items", "items.product"],
@@ -202,7 +208,7 @@ const checkoutCart = async (cartId, userId, userRole, orderData) => {
   if (!cart) {
     throw new AppError("No cart found with that ID", 404);
   }
-  if (cart.userId.toString() !== userId.toString()) {
+  if (!cart.userId || cart.userId.toString() !== userId.toString()) {
     throw new AppError("You do not have permission to checkout this cart", 403);
   }
   if (!cart.items || cart.items.length === 0) {
@@ -216,6 +222,7 @@ const checkoutCart = async (cartId, userId, userRole, orderData) => {
   }
   // Stripe integration
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  
   // Prepare line items
   const line_items = cart.items.map(item => {
     const productData = {
@@ -269,30 +276,54 @@ const checkoutCart = async (cartId, userId, userRole, orderData) => {
     },
   });  
 
-  const order = {
+  // Create the order in DB for reference (optional, can be moved to webhook if you want strict post-payment logic)
+  const order = await orderRepository.save({
     cartId: cart.id,
     userId: cart.userId,
     stripeSessionId: session.id,
     orderNumber: `ORD-${Date.now()}`,
     orderStatus: 'Processing',
     orderDate: new Date(),
-    paymentInfo: session.payment_intent || session.id,
+    paymentInfo: session.payment_intent || session.id || '',
     country: session.shipping?.address?.country || '',
     city: session.shipping?.address?.city || '',
     streetAddress: session.shipping?.address?.line1 || '',
-    userId: userId,
     phoneNumber: session.customer_details?.phone || '',
     email: session.customer_details?.email || session.customer_email || '',
-    stripeSessionId: session.id,
-  }
+    cart: cart,
+  });
 
-  // IMPORTANT: When creating the order, make sure to include stripeSessionId: session.id
-  return { sessionId: session.id, stripeSessionId: session.id, orderData: order };
+  
+  // Before creating a new cart, set the old cart's userId to null to avoid unique constraint violation
+
+  await cartRepository.update(cart.id, { userId: null, CheckedUser: userId, status: 'checked_out' });
+
+  // After checkout, create a new empty cart for the user
+  const newCart = await cartRepository.save({ userId: userId, total: 0, status: 'active' });
+
+  // Update the user to reference the new cart (must use entity save, not update)
+  const user = await userRepository.findOne({ where: { id: userId }, relations: ["cart"] });
+  user.cartId = newCart.id;
+  await userRepository.save(user);
+
+  // Return sessionId for Stripe redirect, order for confirmation fetch, and new cart
+  return { sessionId: session.id, stripeSessionId: session.id, order };
 };
 
 
-export const emptyCart =async (cartId) => {
-  const cart = await cartRepository.findOne({ where: { id: cartId } });
+
+export const emptyCart =async (req) => {
+  const {id} = req.params
+  // const cart = cartId
+  if(id === 'undefined') {
+    return  new AppError("Cart not found", 404)
+  }
+  
+  const cart = await cartRepository.findOne({ where: { id } });
+  
+  const cartUser = await userReposetry.findOne({where: {id: cart.userId}})
+
+  
   if (!cart) {
     throw new AppError("Cart not found", 404);
   }
@@ -302,7 +333,8 @@ export const emptyCart =async (cartId) => {
   await cartRepository.save(cart);
 
   const cartItemRepository = AppDataSource.getRepository(CartItem);
-  return cartItemRepository.delete({ cart: { id: cartId } });
+  return cartItemRepository.delete({ cart: { id } });
+  return cart
 }
 
 export {

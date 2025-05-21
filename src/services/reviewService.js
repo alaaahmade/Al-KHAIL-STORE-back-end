@@ -1,8 +1,9 @@
+
+import { AppDataSource } from '../config/database.js';
 import { Comment } from '../entities/Comment.js';
 import {Review} from "../entities/Review.js"
 import AppError from "../utils/AppError.js"
 import catchAsync from "../utils/catchAsync.js"
-import { AppDataSource } from "../config/database.js";
 
 // Create a new review
 const createReview = catchAsync(async (reviewData) => {
@@ -11,22 +12,22 @@ const createReview = catchAsync(async (reviewData) => {
 });
 
 // Get all reviews
-const getAllReviews = catchAsync(async () => {
+const getAllReviews = async () => {
   const reviews = await Review.find();
   return reviews;
-});
+};
 
 // Get review by ID
-const getReview = catchAsync(async (id) => {
+const getReview = async (id) => {
   const review = await Review.findById(id);
   if (!review) {
     throw new AppError("No review found with that ID", 404);
   }
   return review;
-});
+};
 
 // Update review
-const updateReview = catchAsync(async (id, updateData) => {
+const updateReview = async (id, updateData) => {
   const review = await Review.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
@@ -35,21 +36,29 @@ const updateReview = catchAsync(async (id, updateData) => {
     throw new AppError("No review found with that ID", 404);
   }
   return review;
-});
+};
 
 // Delete review
-const deleteReview = catchAsync(async (id) => {
+const deleteReview = async (id) => {
   const review = await Review.findByIdAndDelete(id);
   if (!review) {
     throw new AppError("No review found with that ID", 404);
   }
-});
+}
 
 // Get reviews by product ID
-const getReviewsByProduct = catchAsync(async (productId) => {
-  const reviews = await Review.find({ productId });
+const getReviewsByProduct = async (req) => {
+  const {productId} = req.params
+  const commentRepo = AppDataSource.getRepository(Comment);
+  const reviews = await commentRepo.find({
+    where: { productId },
+    relations: ["user", "product", "commentReplies", "commentReplies.user"],
+  });
+  if(!reviews){
+    new AppError("No review found with that ID", 404)
+  }
   return reviews;
-});
+};
 
 // Get reviews by user ID
 const getReviewsByUser = catchAsync(async (userId) => {
@@ -70,7 +79,7 @@ const getProductAverageRating = catchAsync(async (productId) => {
 export const getLatestReviews = catchAsync(async () => {
   const commentRepo = AppDataSource.getRepository(Comment);
   const results = await commentRepo.find({
-    relations: ["user", "product", "commentReply"],
+    relations: ["user", "product", "commentReplies", "commentReplies.user"],
     order: { createdAt: "DESC" },
     take: 3,
   });

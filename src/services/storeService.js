@@ -11,7 +11,7 @@ const createStore = async (storeData) => {
 
 const getAllStores = async () => {
   return await storeRepository.find({
-    relations: ["products"],
+    relations: ["products", "products.comments"],
   });
 };
 

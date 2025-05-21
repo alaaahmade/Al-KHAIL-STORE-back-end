@@ -24,7 +24,8 @@ import { TestDataSource } from './config/database.test.js';
 import { AppDataSource } from './config/database.js';
 import AppError from './utils/AppError.js';
 import stripeRoutes from './routes/stripeRoutes.js';
-import stripeWebhook from './routes/stripeWebhook.js';
+import stripeWebhookRoutes from './routes/stripeWebhookRoutes.js';
+
 dotenv.config();
 
 
@@ -37,7 +38,9 @@ if (process.env.NODE_ENV === "test") {
 export default dataSource = dataSource;
 
 export const app = express();
+app.use(stripeWebhookRoutes)
 app.enable('strict routing'); 
+// Stripe webhook endpoint must be registered before body parsers to preserve raw body for signature verification
 
 // Middleware
 app.use(cors({
@@ -72,8 +75,6 @@ app.use("/api/v1/stores", storeRoutes);
 app.use("/api/v1/reviews", reviews);
 app.use("/api/v1/chat", chatRoutes);
 app.use('/api/v1/payments', stripeRoutes);
-// Stripe webhook endpoint (must be before error handler and before body parsing middleware)
-app.use(stripeWebhook);
 
 app.use(errorHandler);
 

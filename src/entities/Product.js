@@ -57,6 +57,19 @@ export const Product = new EntitySchema({
       scale: 2,
       nullable: false,
     },
+    isFeatured: {
+      type: "boolean",
+      default: true,
+      nullable: true
+    },
+    productGallery : {
+      type: 'jsonb',
+      nullable: true,
+      default: JSON.stringify( ['https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTixMUT-tvYkn-4K0khhYC3lKHV_mRmBGpc0g&s',
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIod4kE9WxLPhpki-0oPMeumyS8DzwkFe3-g&s',
+        'https://i.pinimg.com/236x/14/86/86/148686b4a830e06d8089db5cb1e521f4.jpg',
+        'https://thumbs.dreamstime.com/b/pink-flowers-float-clear-waters-hawaii-soft-white-sand-below-347952870.jpg'])
+    }
   },
 
   relations: {

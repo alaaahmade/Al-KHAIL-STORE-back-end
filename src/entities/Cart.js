@@ -11,7 +11,12 @@ export const Cart = new EntitySchema({
     },
     userId: {
       type: "bigint",
-      nullable: false,
+      nullable: true,
+    },
+    CheckedUser: {
+      type: "bigint",
+      nullable: true,
+      default: null
     },
     total: {
       type: "decimal",
@@ -28,10 +33,14 @@ export const Cart = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
       onUpdate: "CURRENT_TIMESTAMP",
     },
+    status: {
+      type: "varchar",
+      default: 'active', // 'active', 'checked_out', 'inactive'
+    },
   },
   relations: {
     user: {
-      type: "one-to-one",  // Changed from many-to-one to match User entity
+      type: "one-to-one", 
       target: "User",
       inverseSide: "cart",
       joinColumn: {

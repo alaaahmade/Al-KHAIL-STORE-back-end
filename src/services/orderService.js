@@ -168,10 +168,8 @@ const getOrderBySessionId = async (stripeSessionId) => {
     where: { stripeSessionId },
     relations: ["user", "cart", "cart.items", "cart.items.product"],
   });
-  console.log(order);
   
-  if (!order) {
-    throw new AppError("No order found with that Stripe session ID", 404);
+  if (!order) {    throw new AppError("No order found with that Stripe session ID", 404);
   }
   return order;
 };
