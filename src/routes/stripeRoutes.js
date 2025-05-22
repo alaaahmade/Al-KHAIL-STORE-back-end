@@ -55,7 +55,6 @@ stripeRoutes.get(
       customer: req.user.stripeCustomerId,
       type: 'card',
     });
-
     res.json(paymentMethods.data);
   })
 );
