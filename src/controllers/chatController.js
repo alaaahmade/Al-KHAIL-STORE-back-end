@@ -66,6 +66,7 @@ export const createOrGetChatRoom = async (req, res, next) => {
   }
 };
 
+
 export const getUserChatRooms = async (req, res, next) => {
   const { userId } = req.params;
   const chatRoomRepository = getChatRoomRepository();
@@ -76,15 +77,27 @@ export const getUserChatRooms = async (req, res, next) => {
     if (!user) {
         return res.status(404).json({ message: 'User not found.' });
     }
+// 'participants', 'messages', 'messages.sender'
+const chatRooms = await chatRoomRepository
+  .createQueryBuilder('chatRoom')
+  .innerJoin('chatRoom.participants', 'participant')
+  .where('participant.id = :userId', { userId })
 
-    const chatRooms = await chatRoomRepository.createQueryBuilder('chatRoom')
-      .innerJoin('chatRoom.participants', 'participant')
-      .where('participant.id = :userId', { userId })
-      .leftJoinAndSelect('chatRoom.participants', 'allParticipants')
-      .leftJoinAndSelect('chatRoom.messages', 'messages') 
-      .leftJoinAndSelect('messages.sender', 'sender')
-      .orderBy('messages.createdAt', 'DESC') 
-      .getMany();
+  // Select all participants
+  .leftJoinAndSelect('chatRoom.participants', 'allParticipants')
+
+  // Join seller from participant
+  .leftJoinAndSelect('allParticipants.seller', 'participantSeller')
+
+  // Join store from seller
+  .leftJoinAndSelect('participantSeller.store', 'participantStore')
+
+  // Join messages and sender
+  .leftJoinAndSelect('chatRoom.messages', 'messages')
+  .leftJoinAndSelect('messages.sender', 'sender')
+
+  .orderBy('messages.createdAt', 'DESC')
+  .getMany();
     if( chatRooms.length > 0) {
       chatRooms.forEach(room => {
         room.participants = room.participants.filter(p => p.id !== userId);
@@ -139,6 +152,8 @@ export const sendMessage = async ({roomId, senderId, content}) => {
         relations: ['sender', 'chatRoom'] 
     });
 
+    io.emit('messageResponse', savedMessage);
+
     return savedMessage
 
   } catch (error) {
@@ -181,7 +196,7 @@ export const getRomeById = async (req, res, next) => {
   try {
     const chatRoom = await chatRoomRepository.findOne({
       where: { id: roomId },
-      relations: ['participants', 'messages', 'messages.sender'],
+      relations: ['participants', 'participants.seller', 'participants.seller.store',  'messages', 'messages.sender'],
     });
     if (!chatRoom) {
       return res.status(404).json({ message: 'Chat room not found.' });

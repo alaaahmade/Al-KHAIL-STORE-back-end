@@ -16,7 +16,8 @@ import {
   User,
   Roles,
   ChatRoom, 
-  Message 
+  Message, 
+  UserSettings
 } from './entities/index.js';
 
 async function createUserIfNotExists(repo, data, roleEntities) {
@@ -56,6 +57,7 @@ export async function seedDatabase() {
     const roleRepo = AppDataSource.getRepository(Roles);
     const chatRoomRepo = AppDataSource.getRepository(ChatRoom);
     const messageRepo = AppDataSource.getRepository(Message);
+    const settingsRepo = AppDataSource.getRepository(UserSettings);
 
     const roleNames = ["ADMIN", "SELLER", "USER", "MANAGER"];
     const rolesMap = {};
@@ -80,12 +82,20 @@ export async function seedDatabase() {
     await cartRepo.delete({});
     await productRepo.delete({});
 
+
     const admin = await createUserIfNotExists(userRepo, {
       firstName: "Admin", lastName: "User",
       email: "admin@example.com", password: "admin123",
       phoneNumber: "1234567890", role: "ADMIN",
-      photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s'
+      photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s',
+      // settings: adminSettings
     }, [rolesMap["ADMIN"]]);
+
+    const adminSettings = await settingsRepo.create({userId: admin.id})
+    await settingsRepo.save(adminSettings)
+
+    admin.settings = adminSettings;
+await userRepo.save(admin);
 
     let store = await storeRepo.findOne({ where: { email: "store@example.com" } });
     if (!store) {
@@ -105,22 +115,33 @@ export async function seedDatabase() {
       firstName: "Seller", lastName: "User",
       email: "seller@example.com", password: "seller123",
       phoneNumber: "0987654321", role: "SELLER",
-      photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s'
+      photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s',
     },[rolesMap["SELLER"]]);
 
+    const sellerSettings = await settingsRepo.create({userId: seller.id})
+    await settingsRepo.save(sellerSettings)
+
+    seller.settings = sellerSettings;
+await userRepo.save(seller);
     let sellerProfile = await sellerRepo.findOne({ where: { userId: seller.id } });
     if (!sellerProfile) {
       sellerProfile = sellerRepo.create({ userId: seller.id, storeId: store.id });
       await sellerRepo.save(sellerProfile);
       console.log("Seller profile created and linked to store");
     }
-
     const user = await createUserIfNotExists(userRepo, {
       firstName: "Regular", lastName: "User",
       email: "user@example.com", password: "user123",
       phoneNumber: "5555555555", role: "USER",
-      photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s'
+      photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s',
     }, [rolesMap["USER"]]);
+
+
+    const userSettings = await settingsRepo.create({userId: user.id})
+    await settingsRepo.save(userSettings)
+
+    user.settings = userSettings;
+await userRepo.save(user);
 
     const manager = await createUserIfNotExists(userRepo, {
       firstName: "Manager", lastName: "User",

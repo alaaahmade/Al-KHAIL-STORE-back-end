@@ -17,44 +17,6 @@ export const Seller = new EntitySchema({
       type: "bigint",
       nullable: true,
     },
-    setting: {
-      type: "jsonb",
-      nullable: false,
-      default: JSON.stringify({
-        notifications: {
-          Order_Updates: true,
-          Promotions_Deals: false,
-          New_Product_Arrivals: true,
-          Push_Notifications: {
-            Order_Status_Updates: true,
-            Chat_Messages: false,
-          },
-          Newsletter_Preferences: {
-            Weekly_Newsletter: true
-          }
-        },
-        shipping_Address: [
-          {
-            label: 'Home',
-            isDefault: true,
-            name: 'Sarah Johnson',
-            address: '123 Main Street, Apt 4B',
-            city: 'New York, NY 10001',
-            country: 'United States',
-            phone: '(555) 123-4567',
-          },
-          {
-            label: 'Office',
-            isDefault: false,
-            name: 'Sarah Johnson',
-            address: '456 Business Ave, Floor 12',
-            city: 'New York, NY 10002',
-            country: 'United States',
-            phone: '(555) 987-6543',
-          },
-        ]
-      }) 
-    },
     isActive: {
       type: "boolean",
       default: true,

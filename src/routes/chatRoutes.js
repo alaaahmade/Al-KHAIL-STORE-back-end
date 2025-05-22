@@ -8,6 +8,7 @@ import {
   getRomeById,
 } from '../controllers/chatController.js';
 import { protect } from '../middleware/auth.js';
+import AppError from '../utils/AppError.js';
 
 const router = express.Router();
 
@@ -31,7 +32,20 @@ router.get(
 
 router.post(
   '/rooms/:roomId/messages',
-  sendMessage
+  async(req,res, next) => {
+    try {      
+      const {roomId, senderId, content} = req.body
+
+      if (!senderId || !content) {
+        return res.status(400).json({ message: 'Missing senderId or content.' });
+      }
+  
+      const response = await sendMessage({roomId, senderId, content})
+      return res.status(200).json(response)
+    } catch (error) {
+      next(new AppError(error.message, 400));
+    }
+  }
 );
 
 router.get(

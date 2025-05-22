@@ -14,6 +14,7 @@ import { Review } from './Review.js';
 import {Roles} from './roles.js'
 import {ChatRoom} from './ChatRoom.js';
 import {Message} from './Message.js';
+import {UserSettings} from './UserSettings.js'
 
 const entities = [
   User,
@@ -31,7 +32,8 @@ const entities = [
   Review,
   Roles,
   ChatRoom,
-  Message
+  Message,
+  UserSettings
 ]
 
 export {
@@ -51,5 +53,6 @@ export {
   Review,
   Roles,
   ChatRoom,
-  Message
+  Message,
+  UserSettings
 }

@@ -62,6 +62,7 @@ export const User = new EntitySchema({
       nullable: true,
       unique: true,
     },
+
   },
   relations: {
     comments: {
@@ -79,6 +80,7 @@ export const User = new EntitySchema({
       target: "Seller",
       inverseSide: "user",
     },
+
     manager: {
       type: "one-to-one",
       target: "Manager",
@@ -93,6 +95,11 @@ export const User = new EntitySchema({
     lastOrder: {
       type: "one-to-one",
       target: "Order",
+      inverseSide: "user",
+    },
+    settings: {
+      type: "one-to-one",
+      target: "UserSettings",
       inverseSide: "user",
     },
   },

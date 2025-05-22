@@ -32,7 +32,7 @@ io.on('connection', socket => {
   handleIsActive(userId);
 
   socket.on('message', async ({ romeId, senderId, content }) => {
-    console.log({romeId, senderId, content});    
+    const newMessage = await sendMessage({ roomId: romeId, senderId, content });    
     io.emit('messageResponse', newMessage);
   })  
 

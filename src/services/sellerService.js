@@ -3,7 +3,7 @@ import catchAsync from "../utils/catchAsync.js"
 import { AppDataSource } from "../config/database.js"
 import bcrypt from 'bcryptjs'
 
-import { Invoice, Roles, Seller, Store, User} from "../entities/index.js"
+import { Invoice, Roles, Seller, Store, User, UserSettings} from "../entities/index.js"
 // Create a new seller
 const createSeller = async (sellerData) => {
   const {firstName,
@@ -145,10 +145,13 @@ const getSeller = async (id) => {
 
 // Update seller
 const updateSeller = async (id, updateData) => {
-  const sellerRepository = AppDataSource.getRepository(Seller);    
+  console.log(id, updateData);
+  
+  const sellerRepository = AppDataSource.getRepository(UserSettings);    
   // First find the seller
   const seller = await sellerRepository.findOne({
-    where: { id }
+    where: { id },
+    // relations: ["settings"]
   });
   
   if (!seller) {
