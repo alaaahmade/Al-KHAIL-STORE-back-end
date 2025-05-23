@@ -11,6 +11,9 @@ router
 router.route('/roles')
   .get(userController.getAllRoles)
 
+// Check if email exists
+router.get('/email/:email', userController.checkEmailExists);
+
 router
   .route("/:id")
   .get(userController.getUser)

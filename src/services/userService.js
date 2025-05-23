@@ -3,11 +3,16 @@ import { Roles, User } from "../entities/index.js";
 import AppError from "../utils/AppError.js";
 
 class UserService {
+
   constructor() {
     this.repo = AppDataSource.getRepository(User);
     this.roleRepo = AppDataSource.getRepository(Roles)
   }
 
+  // Find user by email
+  async getUserByEmail(email) {
+    return await this.repo.findOneBy({ email });
+  }
   // Create a new user
   async createUser(userData) {
     try {

@@ -6,11 +6,148 @@ import { generateToken } from '../middleware/auth.js'
 import { User } from '../entities/User.js'
 import { Cart } from '../entities/Cart.js'
 import { UserSettings } from '../entities/UserSettings.js'
+import { Seller } from '../entities/Seller.js'
+import { Store } from '../entities/Store.js'
 import nodemailer from 'nodemailer';
+import { Roles } from '../entities/roles.js'
+
+/**
+ * Become a Seller
+ * @route POST /api/auth/become-seller
+ */
+
+async function createUserIfNotExists(repo, data, roleName, next) {
+  // 1. Check if user exists
+  const existing = await repo.findOne({ 
+    where: { email: data.email }, 
+    relations: ['roles'] 
+  });
+  if (existing) {
+    return next(new AppError('User with this email already exists', 400));
+  }
+
+  // 2. Hash password
+  data.password = await bcrypt.hash(data.password, 10);
+
+  // 3. Create user without roles first
+  const user = repo.create(data);
+  await repo.save(user);
+
+  // 4. Always fetch the role by name
+  const roleRepo = AppDataSource.getRepository(Roles);
+  const verifiedRole = await roleRepo.findOne({ 
+    where: { name: roleName },
+    relations: ["users"]
+  });
+  console.log(verifiedRole);
+
+  if (!verifiedRole) {
+    return next(new AppError(`Role with name ${roleName} not found`, 500));
+  }
+  
+  verifiedRole.users.push(user);
+  await roleRepo.save(verifiedRole);
+
+  // 5. Assign role using direct ID
+  // await repo
+  //   .createQueryBuilder()
+  //   .relation(User, 'roles')
+  //   .of(user)
+  //   .add(verifiedRole.id); // Explicitly use the verified ID
+
+  // 6. Return user with relations
+  return repo.findOne({ 
+    where: { id: user.id }, 
+    relations: ['roles'] 
+  });
+}
+
+
+const becomeASeller = catchAsync(async (req, res, next) => {
+  const { firstName, lastName, email, password, storeName, description, phoneNumber } = req.body;
+
+  // 1) Check if required fields exist
+  if (!firstName || !lastName || !email || !password || !storeName || !description || !phoneNumber) {
+    return next(new AppError('Please provide all required fields', 400));
+  }
+
+  // 2) Check if user already exists
+  const userRepository = AppDataSource.getRepository(User);
+  // 2) Check if user already exists and create user with role assignment
+  // Create user with explicit role assignment, handle duplicate inside utility
+  const newUser = await createUserIfNotExists(userRepository, {
+    firstName,
+    lastName,
+    email,
+    password,
+    phoneNumber,
+    role: 'SELLER',
+    isActive: true,
+  }, 'SELLER', next);
+
+
+  // 5) Create Store
+  const storeRepo = AppDataSource.getRepository(Store);
+  const newStore = storeRepo.create({
+    name: storeName,
+    description,
+    phoneNumber,
+    email,
+    address: '',
+    isActive: true
+  });
+  await storeRepo.save(newStore);
+
+  // 6) Create Seller profile and link to user and store
+  const sellerRepo = AppDataSource.getRepository(Seller);
+  const newSeller = sellerRepo.create({
+    user: newUser,
+    store: newStore,
+    isActive: true
+  });
+  await sellerRepo.save(newSeller);
+  newUser.seller = newSeller;
+
+  // 7) Create Cart
+  const cartRepo = AppDataSource.getRepository(Cart);
+  const newCart = cartRepo.create({
+    user: newUser,
+  });
+  await cartRepo.save(newCart);
+  newUser.cart = newCart;
+
+  // 8) Create UserSettings
+  const settingsRepo = AppDataSource.getRepository(UserSettings);
+  const newSettings = settingsRepo.create({
+    user: newUser,
+  });
+  await settingsRepo.save(newSettings);
+  newUser.settings = newSettings;
+
+  await userRepository.save(newUser);
+
+  // 9) Generate token
+  const token = generateToken(newUser);
+
+  // Remove password from output
+  const userResponse = await userRepository.findOne({
+    where: { id: newUser.id },
+    relations: ["seller", "seller.store", "cart", "cart.items", 'settings']
+  });
+  delete userResponse.password;
+
+  res.status(201).json({
+    status: 'success',
+    token,
+    data: {
+      user: userResponse
+    }
+  });
+});
 
 /**
  * User login
- * @route POST /api/auth/login
+ * @route POST /api/auth/login-
  */
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -266,6 +403,7 @@ export default {
   getMe,
   updatePassword,
   register,
+  becomeASeller,
   forgotPassword,
   verifyResetCode,
   resetPassword

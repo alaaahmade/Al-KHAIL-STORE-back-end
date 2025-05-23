@@ -20,7 +20,7 @@ import {
   UserSettings
 } from './entities/index.js';
 
-async function createUserIfNotExists(repo, data, roleEntities) {
+async function createUserIfNotExists(repo, data, roleName) {
   const existing = await repo.findOne({ where: { email: data.email }, relations: ['roles'] });
   if (existing) {
     console.log(`${data.role} user already exists`);
@@ -28,8 +28,20 @@ async function createUserIfNotExists(repo, data, roleEntities) {
   }
 
   data.password = await bcrypt.hash(data.password, 10);
-  const user = repo.create({ ...data, roles: roleEntities });
+  const user = repo.create(data);
   await repo.save(user);
+
+  // Always fetch the role by name
+  const roleRepo = AppDataSource.getRepository(Roles);
+  const verifiedRole = await roleRepo.findOne({ where: { name: roleName } });
+  if (!verifiedRole) throw new Error(`Role ${roleName} not found`);
+
+  await repo
+    .createQueryBuilder()
+    .relation('roles')
+    .of(user)
+    .add(verifiedRole.id);
+
   console.log(`${data.role} user created`);
   return user;
 }
@@ -89,7 +101,7 @@ export async function seedDatabase() {
       phoneNumber: "1234567890", role: "ADMIN",
       photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s',
       // settings: adminSettings
-    }, [rolesMap["ADMIN"]]);
+    }, "ADMIN");
 
     const adminSettings = await settingsRepo.create({userId: admin.id})
     await settingsRepo.save(adminSettings)
@@ -116,7 +128,7 @@ await userRepo.save(admin);
       email: "seller@example.com", password: "seller123",
       phoneNumber: "0987654321", role: "SELLER",
       photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s',
-    },[rolesMap["SELLER"]]);
+    }, "SELLER");
 
     const sellerSettings = await settingsRepo.create({userId: seller.id})
     await settingsRepo.save(sellerSettings)
@@ -134,7 +146,7 @@ await userRepo.save(seller);
       email: "user@example.com", password: "user123",
       phoneNumber: "5555555555", role: "USER",
       photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s',
-    }, [rolesMap["USER"]]);
+    }, "USER");
 
 
     const userSettings = await settingsRepo.create({userId: user.id})
@@ -149,7 +161,7 @@ await userRepo.save(user);
       phoneNumber: "1112223333", role: "MANAGER",
       photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s'
 
-    }, [rolesMap["MANAGER"]]);
+    }, "MANAGER");
 
     const existingManagerProfile = await managerRepo.findOne({ where: { userId: manager.id } });
     if (!existingManagerProfile) {

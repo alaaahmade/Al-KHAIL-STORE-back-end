@@ -190,6 +190,12 @@ export const disActivateUser = catchAsync((userId) => {
 })
 
 
+const checkEmailExists = catchAsync(async (req, res) => {
+  const { email } = req.params;
+  const user = await userService.getUserByEmail(email);
+  res.status(200).json({ exists: !!user });
+});
+
 export default {
   getAllUsers,
   getUser,
@@ -197,4 +203,5 @@ export default {
   updateUser,
   deleteUser,
   getAllRoles,
+  checkEmailExists,
 }

@@ -42,6 +42,7 @@ const router = express.Router();
  *         description: Invalid input or email already in use
  */
 router.post('/register', authController.register);
+router.post('/become-seller', authController.becomeASeller)
 
 /**
  * @swagger
