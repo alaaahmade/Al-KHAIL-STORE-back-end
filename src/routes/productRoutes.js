@@ -11,6 +11,9 @@ router
 
 router
   .get('/featured', productController.getFeaturedProducts); 
+  router
+
+router.get("/categories", productController.getProductsWithCategories)
 
 router
   .route("/:id")

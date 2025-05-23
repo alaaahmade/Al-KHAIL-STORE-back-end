@@ -4,6 +4,9 @@ import AppError from '../utils/AppError.js'
 import catchAsync from '../utils/catchAsync.js'
 import { generateToken } from '../middleware/auth.js'
 import { User } from '../entities/User.js'
+import { Cart } from '../entities/Cart.js'
+import { UserSettings } from '../entities/UserSettings.js'
+import nodemailer from 'nodemailer';
 
 /**
  * User login
@@ -78,8 +81,25 @@ const register = catchAsync(async (req, res, next) => {
   // 5) Generate token
   const token = generateToken(newUser);
 
+  const cartRepo = AppDataSource.getRepository(Cart);
+  const newCart = cartRepo.create({
+    user: newUser,
+  });
+  await cartRepo.save(newCart);
+  newUser.cart = newCart;
+
+  const settingsRepo = AppDataSource.getRepository(UserSettings);
+  const newSettings = settingsRepo.create({
+    user: newUser,
+  });
+  await settingsRepo.save(newSettings);
+  newUser.settings = newSettings;
+
+  await userRepository.save(newUser);
+
+
   // Remove password from output
-  const userResponse = await  userRepository.findOne({ where: { id: user.id }, relations: ["seller", "seller.store", "cart", "cart.items", , 'settings'] });
+  const userResponse = await  userRepository.findOne({ where: { id: newUser.id }, relations: ["seller", "seller.store", "cart", "cart.items", 'settings'] });
   delete userResponse.password;
 
   res.status(201).json({
@@ -152,9 +172,94 @@ const updatePassword = catchAsync(async (req, res, next) => {
   });
 });
 
+// --- Password Reset In-Memory Store ---
+const resetCodes = {};
+
+
+// Configure your transporter (update with your SMTP credentials)
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // or your provider
+  auth: {
+    user: process.env.EMAIL_USER || 'balantypro@gmail.com',
+    pass: process.env.EMAIL_PASS || 'lpkvuhrztdzfgcdr',
+  },
+});
+
+// Helper to send email
+async function sendResetEmail(email, code) {
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER || 'your_email@gmail.com',
+    to: email,
+    subject: 'Your Password Reset Code',
+    text: `Your password reset code is: ${code}`,
+  });
+}
+
+/**
+ * Forgot Password - Send code
+ * @route POST /api/auth/forgot-password
+ */
+const forgotPassword = catchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return next(new AppError('Email is required', 400));
+  console.log({ email });
+
+  const userRepository = AppDataSource.getRepository(User);
+  const user = await userRepository.findOne({ where: { email } });
+  console.log({ user });
+
+  if (!user) return next(new AppError('User not found', 404));
+
+  // Generate 6-digit code
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  resetCodes[email] = { code, expires: Date.now() + 10 * 60 * 1000 }; // 10 min expiry
+
+  await sendResetEmail(email, code);
+  res.status(200).json({ message: 'Reset code sent to email.' });
+});
+
+/**
+ * Verify Reset Code
+ * @route POST /api/auth/verify-reset-code
+ */
+const verifyResetCode = catchAsync(async (req, res, next) => {
+  const { email, code } = req.body;
+  if (!email || !code) return next(new AppError('Email and code are required', 400));
+  const entry = resetCodes[email];
+  if (!entry || entry.code !== code || entry.expires < Date.now()) {
+    return next(new AppError('Invalid or expired code', 400));
+  }
+  res.status(200).json({ message: 'Code verified.' });
+});
+
+/**
+ * Reset Password
+ * @route POST /api/auth/reset-password
+ */
+const resetPassword = catchAsync(async (req, res, next) => {
+  const { email, code, newPassword } = req.body;
+  if (!email || !code || !newPassword) return next(new AppError('All fields required', 400));
+  const entry = resetCodes[email];
+  if (!entry || entry.code !== code || entry.expires < Date.now()) {
+    return next(new AppError('Invalid or expired code', 400));
+  }
+
+  const userRepository = AppDataSource.getRepository(User);
+  const user = await userRepository.findOne({ where: { email } });
+  if (!user) return next(new AppError('User not found', 404));
+
+  user.password = await bcrypt.hash(newPassword, 12);
+  await userRepository.save(user);
+  delete resetCodes[email];
+  res.status(200).json({ message: 'Password reset successful.' });
+});
+
 export default {
   login,
   getMe,
   updatePassword,
-  register
+  register,
+  forgotPassword,
+  verifyResetCode,
+  resetPassword
 }

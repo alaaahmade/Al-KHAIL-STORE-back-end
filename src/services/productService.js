@@ -8,6 +8,9 @@ class ProductService {
   getRepository() {
     return AppDataSource.getRepository(Product);
   }
+  getCategoryRepo(){
+    return AppDataSource.getRepository(Category);
+  }
 
   async getAllProducts() {
     return await this.getRepository().find({
@@ -108,8 +111,14 @@ class ProductService {
   async getFeaturedProducts() {
     return await this.getRepository().find({
       where: { isFeatured: true },
-      relations: ["category", "store", "comments", "category", "comments"],
+      relations: ["category", "store", "comments",],
     }); 
+  }
+
+  async getProductsWithCategories() {
+    return this.getCategoryRepo().find({
+      relations: ['products', "products.store", "products.comments",]
+    })
   }
 
 }

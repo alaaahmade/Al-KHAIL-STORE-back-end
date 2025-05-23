@@ -121,4 +121,9 @@ router.get('/me', protect, authController.getMe);
  */
 router.patch('/update-password', protect, authController.updatePassword);
 
+// Password reset routes
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/verify-reset-code', authController.verifyResetCode);
+router.post('/reset-password', authController.resetPassword);
+
 export default router;
