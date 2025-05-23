@@ -14,8 +14,6 @@ import nodemailer from 'nodemailer';
  */
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
-    console.log({ email, password });
-    
   // 1) Check if email and password exist
   if (!email || !password) {
     return next(new AppError('Please provide email and password', 400));
@@ -188,10 +186,21 @@ const transporter = nodemailer.createTransport({
 // Helper to send email
 async function sendResetEmail(email, code) {
   await transporter.sendMail({
-    from: process.env.EMAIL_USER || 'your_email@gmail.com',
+    from: process.env.EMAIL_USER || 'balantypro@gmail.com',
     to: email,
-    subject: 'Your Password Reset Code',
-    text: `Your password reset code is: ${code}`,
+    subject: 'Al-KHAIL-STORE Password Reset Code',
+    text: `
+  Hello,
+  
+  You requested to reset your password for your Al-KHAIL-STORE account.
+  
+  Your password reset code is: ${code}
+  
+  If you did not request this, please ignore this email. This code will expire shortly for your security.
+  
+  Thank you,  
+  The Al-KHAIL-STORE Team
+    `
   });
 }
 
@@ -202,11 +211,9 @@ async function sendResetEmail(email, code) {
 const forgotPassword = catchAsync(async (req, res, next) => {
   const { email } = req.body;
   if (!email) return next(new AppError('Email is required', 400));
-  console.log({ email });
 
   const userRepository = AppDataSource.getRepository(User);
   const user = await userRepository.findOne({ where: { email } });
-  console.log({ user });
 
   if (!user) return next(new AppError('User not found', 404));
 
