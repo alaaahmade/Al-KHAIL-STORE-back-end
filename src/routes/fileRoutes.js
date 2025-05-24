@@ -5,7 +5,41 @@ import { fileStorage } from '../utils/fileStorage.js';
 const fileRoutes = express.Router();
 const upload = multer();
 
-// POST /api/v1/files/upload
+/**
+ * @swagger
+ * /api/v1/files/upload:
+ *   post:
+ *     summary: Upload a file
+ *     tags: [Files]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: File uploaded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 url:
+ *                   type: string
+ *                 fileName:
+ *                   type: string
+ *       400:
+ *         description: No file uploaded
+ *       500:
+ *         description: Server error
+ */
 fileRoutes.post('/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -19,7 +53,36 @@ fileRoutes.post('/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-// GET /api/v1/files/url/:fileName (returns signed or direct URL)
+/**
+ * @swagger
+ * /api/v1/files/url/{fileName}:
+ *   get:
+ *     summary: Get a signed or direct URL for a file
+ *     tags: [Files]
+ *     parameters:
+ *       - in: path
+ *         name: fileName
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Name of the file
+ *     responses:
+ *       200:
+ *         description: URL retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 url:
+ *                   type: string
+ *       404:
+ *         description: File not found
+ *       500:
+ *         description: Server error
+ */
 fileRoutes.get('/url/:fileName', async (req, res) => {
   try {
     const { fileName } = req.params;
@@ -30,7 +93,34 @@ fileRoutes.get('/url/:fileName', async (req, res) => {
   }
 });
 
-// DELETE /api/v1/files/:fileName
+/**
+ * @swagger
+ * /api/v1/files/{fileName}:
+ *   delete:
+ *     summary: Delete a file
+ *     tags: [Files]
+ *     parameters:
+ *       - in: path
+ *         name: fileName
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Name of the file to delete
+ *     responses:
+ *       200:
+ *         description: File deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *       404:
+ *         description: File not found
+ *       500:
+ *         description: Server error
+ */
 fileRoutes.delete('/:fileName', async (req, res) => {
   try {
     const { fileName } = req.params;
