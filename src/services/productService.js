@@ -1,7 +1,7 @@
 // src/services/productService.js
 
 import { AppDataSource } from "../config/database.js"
-import { Category, Product } from '../entities/index.js';
+import { Category, Product, Store } from '../entities/index.js';
 import AppError from "../utils/AppError.js"
 
 class ProductService {
@@ -10,6 +10,9 @@ class ProductService {
   }
   getCategoryRepo(){
     return AppDataSource.getRepository(Category);
+  }
+  getStoreRepo(){
+    return AppDataSource.getRepository(Store);
   }
 
   async getAllProducts() {
@@ -33,11 +36,8 @@ class ProductService {
 
   async createProduct(productData) {
     try {
-      if (productData.storeId) {
-        productData.store = { id: productData.storeId };
-        delete productData.storeId; // إزالة storeId لتجنب التضارب
-      }
-
+      // Accepts store and category as objects/arrays
+      // No need to fetch store by userId; store should be { id }
       const product = this.getRepository().create(productData);
       return await this.getRepository().save(product);
     } catch (error) {

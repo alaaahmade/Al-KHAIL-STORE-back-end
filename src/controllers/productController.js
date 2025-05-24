@@ -2,6 +2,7 @@ import productService from "../services/productService.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/AppError.js";
 
+
 /**
  * @swagger
  * /api/v1/products:
@@ -53,27 +54,37 @@ import AppError from "../utils/AppError.js";
  *         description: Product created successfully
  */
 const createProduct = catchAsync(async (req, res, next) => {
-  const { categoryIds, storeId, ...productData } = req.body;
-
-  // تمرير العلاقة مع الـ Store بشكل صحيح
-  productData.store = { id: storeId };
-
-  const product = await productService.createProduct(productData);
-
-  if (categoryIds && categoryIds.length > 0) {
-    for (const categoryId of categoryIds) {
-      await productService.addCategoryToProduct(product.id, categoryId);
+  try {
+    const { category, storeId, productGallery, ...productData } = req.body;
+    // Validate required fields
+    if (!storeId) {
+      return next(new AppError('storeId is required', 400));
     }
+    if (!category || !Array.isArray(category) || category.length === 0) {
+      return next(new AppError('At least one category is required', 400));
+    }
+    // Fetch categories
+    const categories = await productService.getCategoryRepo().findByIds(category);
+    if (categories.length !== category.length) {
+      return next(new AppError('One or more categories not found', 404));
+    }
+    // Prepare product data
+    const newProductData = {
+      ...productData,
+      productGallery: Array.isArray(productGallery) ? productGallery : [],
+      store: { id: storeId },
+      category: categories
+    };
+    // Create and save product
+    const product = await productService.createProduct(newProductData);
+    res.status(201).json({
+      status: "success",
+      data: { product },
+    });
+  } catch (err) {
+    next(err);
   }
-
-  res.status(201).json({
-    status: "success",
-    data: {
-      product,
-    },
-  });
 });
-
 /**
  * @swagger
  * /api/v1/products:
@@ -172,34 +183,36 @@ const getProduct = catchAsync(async (req, res, next) => {
  *         description: Product not found
  */
 const updateProduct = catchAsync(async (req, res, next) => {
-  const { categoryIds, ...productData } = req.body;
-  const product = await productService.updateProduct(
-    req.params.id,
-    productData
-  );
-
-  if (categoryIds) {
-    // Remove all existing categories
-    const existingProduct = await productService.getProductById(req.params.id);
-    for (const category of existingProduct.categories) {
-      await productService.removeCategoryFromProduct(
-        req.params.id,
-        category.id
-      );
+  try {
+    const { category, storeId, productGallery, ...productData } = req.body;
+    // Validate required fields
+    if (!storeId) {
+      return next(new AppError('storeId is required', 400));
     }
-
-    // Add new categories
-    for (const categoryId of categoryIds) {
-      await productService.addCategoryToProduct(req.params.id, categoryId);
+    if (!category || !Array.isArray(category) || category.length === 0) {
+      return next(new AppError('At least one category is required', 400));
     }
+    // Fetch categories
+    const categories = await productService.getCategoryRepo().findByIds(category);
+    if (categories.length !== category.length) {
+      return next(new AppError('One or more categories not found', 404));
+    }
+    // Prepare updated product data
+    const updatedProductData = {
+      ...productData,
+      productGallery: Array.isArray(productGallery) ? productGallery : [],
+      store: { id: storeId },
+      category: categories
+    };
+    // Update and save product
+    const product = await productService.updateProduct(req.params.id, updatedProductData);
+    res.status(200).json({
+      status: "success",
+      data: { product },
+    });
+  } catch (err) {
+    next(err);
   }
-
-  res.status(200).json({
-    status: "success",
-    data: {
-      product,
-    },
-  });
 });
 
 /**

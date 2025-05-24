@@ -1,5 +1,6 @@
 import express from "express";
 import productController from "../controllers/productController.js";
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -7,7 +8,7 @@ const router = express.Router();
 router
   .route("/")
   .get(productController.getAllProducts)
-  .post(productController.createProduct);
+  .post(protect, productController.createProduct);
 
 router
   .get('/featured', productController.getFeaturedProducts); 

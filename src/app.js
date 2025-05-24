@@ -25,6 +25,7 @@ import { AppDataSource } from './config/database.js';
 import AppError from './utils/AppError.js';
 import stripeRoutes from './routes/stripeRoutes.js';
 import stripeWebhookRoutes from './routes/stripeWebhookRoutes.js';
+import fileRoutes from './routes/fileRoutes.js';
 
 dotenv.config();
 
@@ -49,8 +50,8 @@ app.use(cors({
 }));
 
 app.use([
-  json(),
-  urlencoded({ extended: false }),
+  json({ limit: '10mb' }), // Increased limit for base64 images
+  urlencoded({ extended: false, limit: '10mb' }),
   // cookieParser(),
   cors(),
   morgan('dev'),
@@ -75,6 +76,9 @@ app.use("/api/v1/stores", storeRoutes);
 app.use("/api/v1/reviews", reviews);
 app.use("/api/v1/chat", chatRoutes);
 app.use('/api/v1/payments', stripeRoutes);
+app.use('/api/v1/files', fileRoutes);
+
+// File upload/download endpoints
 
 app.use(errorHandler);
 
