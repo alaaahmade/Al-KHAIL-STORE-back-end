@@ -190,7 +190,6 @@ export const getChatRoomMessages = async (req, res, next) => {
 export const getRomeById = async (req, res, next) => {
   const { roomId } = req.params;
   const {id} = req.user;
-  console.log(roomId);
   
   const chatRoomRepository = getChatRoomRepository();
   try {
@@ -216,9 +215,7 @@ export const getRomeById = async (req, res, next) => {
 
 export const deleteMessageService = async (messageId) => {
   const messageRepository = getMessageRepository();
-  const response = await messageRepository.delete({ id: messageId });
-  console.log(response);
-  
+  const response = await messageRepository.delete({ id: messageId });  
   return {
     data: response
   };

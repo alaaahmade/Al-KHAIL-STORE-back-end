@@ -39,7 +39,6 @@ async function createUserIfNotExists(repo, data, roleName, next) {
     where: { name: roleName },
     relations: ["users"]
   });
-  console.log(verifiedRole);
 
   if (!verifiedRole) {
     return next(new AppError(`Role with name ${roleName} not found`, 500));

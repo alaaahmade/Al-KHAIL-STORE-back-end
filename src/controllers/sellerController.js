@@ -74,9 +74,7 @@ const getAllSellers = catchAsync(async (req, res, next) => {
  *       404:
  *         description: Seller not found
  */
-const getSeller = catchAsync(async (req, res, next) => {
-  console.log(req.params.id);
-  
+const getSeller = catchAsync(async (req, res, next) => {  
   const seller = await sellerService.getSeller(req.params.id);
   res.status(200).json({
     status: "success",

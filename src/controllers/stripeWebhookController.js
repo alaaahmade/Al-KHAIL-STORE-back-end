@@ -5,7 +5,6 @@ import { Cart, User } from '../entities/index.js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const handleStripeWebhook = async (req, res) => {
-  console.log('this is the webhok');
   const sig = req.headers['stripe-signature'];
   let event;
 

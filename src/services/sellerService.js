@@ -16,7 +16,6 @@ const createSeller = async (sellerData) => {
     
     password,
     } = sellerData
-    console.log(sellerData);
     
     const userRepo = AppDataSource.getRepository(User);
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -144,9 +143,7 @@ const getSeller = async (id) => {
 };
 
 // Update seller
-const updateSeller = async (id, updateData) => {
-  console.log(id, updateData);
-  
+const updateSeller = async (id, updateData) => {  
   const sellerRepository = AppDataSource.getRepository(UserSettings);    
   // First find the seller
   const seller = await sellerRepository.findOne({
