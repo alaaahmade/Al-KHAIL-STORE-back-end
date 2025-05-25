@@ -93,9 +93,18 @@ export const User = new EntitySchema({
     roles: {
       type: "many-to-many",
       target: "Roles",
-      joinTable: true,
+      joinTable: {
+        name: "roles_users_users",
+        joinColumn: {
+          name: "usersId",
+          referencedColumnName: "id"
+        },
+        inverseJoinColumn: {
+          name: "rolesId",
+          referencedColumnName: "id"
+        }
+      },
       inverseSide: "users",
-      onDelete: 'CASCADE',
     },
     lastOrder: {
       type: "one-to-one",

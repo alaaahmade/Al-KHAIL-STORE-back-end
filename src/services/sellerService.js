@@ -13,7 +13,7 @@ const createSeller = async (sellerData) => {
     contactNumber,
     storeAddress,
     storeLogo,
-    
+    photo,
     password,
     } = sellerData
     
@@ -32,6 +32,7 @@ const createSeller = async (sellerData) => {
       email,
       password: hashedPassword,
       phoneNumber: contactNumber,
+      photo,
       role: 'SELLER',
       roles: [[role]]
     })

@@ -11,10 +11,10 @@ router
 
 router
   .route("/customers")
-  .get(protect, restrictTo('ADMIN'), userController.getCustomers)
+  .get(protect, restrictTo('ADMIN'), userController.getCustomers);
 
 router.route('/roles')
-  .get(protect, restrictTo('ADMIN'), userController.getAllRoles)
+  .get(protect, restrictTo('ADMIN'), userController.getAllRoles);
 
 // Check if email exists
 router.get('/email/:email', userController.checkEmailExists);
@@ -22,10 +22,11 @@ router.get('/email/:email', userController.checkEmailExists);
 // Helper to get user id from params
 const getUserId = (req) => req.params.id;
 
+// Protected routes
 router
   .route("/:id")
-  .get(userController.getUser)
-  .patch(isOwnerOrAdmin(getUserId), userController.updateUser)
-  .delete(userController.deleteUser);
+  .get(protect, isOwnerOrAdmin(getUserId), userController.getUser)
+  .patch(protect, isOwnerOrAdmin(getUserId), userController.updateUser)
+  .delete(protect, isOwnerOrAdmin(getUserId), userController.deleteUser);
 
 export default router;

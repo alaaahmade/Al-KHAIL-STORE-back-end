@@ -17,12 +17,12 @@ export const Roles = new EntitySchema({
     },
   },
   relations: {
-    users: {
-      type: "many-to-many",
-      target: "User",
-      joinTable: true,
-      inverseSide: "roles",
-    },
+// In roles.js
+users: {
+    type: "many-to-many",
+    target: "User",
+    inverseSide: "roles"
+  }
 
   },
 });
