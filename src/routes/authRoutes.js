@@ -55,16 +55,28 @@ router.post('/register', authController.register);
  *           schema:
  *             type: object
  *             required:
- *               - businessName
- *               - address
+ *               - firstName
+ *               - lastName
+ *               - email
+ *               - password
+ *               - storeName
+ *               - description
+ *               - phoneNumber
  *             properties:
- *               businessName:
+ *               firstName:
  *                 type: string
- *               address:
+ *               lastName:
  *                 type: string
- *               additionalInfo:
+ *               email:
  *                 type: string
- *                 description: Optional additional info
+ *               password:
+ *                 type: string
+ *               storeName:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               phoneNumber:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Seller application submitted
