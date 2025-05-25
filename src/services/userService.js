@@ -60,6 +60,11 @@ class UserService {
   // Delete user
   async deleteUser(id) {
     const user = await this.getUserById(id);
+    const isAdmin = user.roles.some((role) => role.name === "ADMIN");
+    if (isAdmin) {
+      throw new AppError("Admin users cannot be deleted", 401);
+    }
+    
     await this.repo.remove(user);
     return { message: "User deleted successfully" };
   }
@@ -79,6 +84,22 @@ class UserService {
     const user = await this.repo.findOneBy({id: userId})
     user.isActive = false
     await this.repo.save(user);
+  }
+
+  async getCustomers() {
+    const userRole = await this.roleRepo.findOneBy({name: "USER"})
+
+    if (!userRole) return [];
+
+    const users = await this.repo
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.roles", "role")
+      .where("role.id = :roleId", { roleId: userRole.id })
+      .getMany();
+    users.forEach((user => {
+      delete user.password
+    }))
+    return users;
   }
 }
 

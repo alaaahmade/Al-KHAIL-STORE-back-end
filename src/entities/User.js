@@ -69,38 +69,45 @@ export const User = new EntitySchema({
       type: "one-to-many",
       target: "Comment",
       inverseSide: "user",
+      onDelete: 'CASCADE',
     },
     cart: {
       type: "one-to-one",
       target: "Cart",
       inverseSide: "user",
+      onDelete: 'CASCADE',
     },
     seller: {
       type: "one-to-one",
       target: "Seller",
       inverseSide: "user",
+      onDelete: 'CASCADE',
     },
 
     manager: {
       type: "one-to-one",
       target: "Manager",
       inverseSide: "user",
+      onDelete: 'CASCADE',
     },
     roles: {
       type: "many-to-many",
       target: "Roles",
       joinTable: true,
       inverseSide: "users",
+      onDelete: 'CASCADE',
     },
     lastOrder: {
       type: "one-to-one",
       target: "Order",
       inverseSide: "user",
+      onDelete: 'CASCADE',
     },
     settings: {
       type: "one-to-one",
       target: "UserSettings",
       inverseSide: "user",
+      onDelete: 'CASCADE',
     },
   },
 });

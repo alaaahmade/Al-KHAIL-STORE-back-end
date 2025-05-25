@@ -8,7 +8,6 @@ import {
   Comment,
   CommentReply,
   Invoice,
-  Manager,
   Order,
   Product,
   Seller,
@@ -59,7 +58,6 @@ export async function seedDatabase() {
     const categoryRepo = AppDataSource.getRepository(Category);
     const productRepo = AppDataSource.getRepository(Product);
     const sellerRepo = AppDataSource.getRepository(Seller);
-    const managerRepo = AppDataSource.getRepository(Manager);
     const cartRepo = AppDataSource.getRepository(Cart);
     const cartItemRepo = AppDataSource.getRepository(CartItem);
     const orderRepo = AppDataSource.getRepository(Order);
@@ -71,7 +69,7 @@ export async function seedDatabase() {
     const messageRepo = AppDataSource.getRepository(Message);
     const settingsRepo = AppDataSource.getRepository(UserSettings);
 
-    const roleNames = ["ADMIN", "SELLER", "USER", "MANAGER"];
+    const roleNames = ["ADMIN", "SELLER", "USER"];
     const rolesMap = {};
 
     for (const name of roleNames) {
@@ -153,21 +151,8 @@ await userRepo.save(seller);
     await settingsRepo.save(userSettings)
 
     user.settings = userSettings;
-await userRepo.save(user);
+    await userRepo.save(user);
 
-    const manager = await createUserIfNotExists(userRepo, {
-      firstName: "Manager", lastName: "User",
-      email: "manager@example.com", password: "manager123",
-      phoneNumber: "1112223333", role: "MANAGER",
-      photo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkkCM82V9-rngvGCj8DdegNCm_jtoM2QaAEw&s'
-
-    }, "MANAGER");
-
-    const existingManagerProfile = await managerRepo.findOne({ where: { userId: manager.id } });
-    if (!existingManagerProfile) {
-      await managerRepo.save(managerRepo.create({ userId: manager.id }));
-      console.log("Manager profile created");
-    }
 
     if ((await categoryRepo.count()) === 0) {
       const categories = ["Electronics", "Clothing", "Home & Kitchen", "Books", "Toys", "Skincare"].map(name => ({
@@ -214,7 +199,7 @@ await userRepo.save(user);
         {
           content: "Decent laptop but runs a bit hot under heavy load.",
           rating: 3,
-          userId: manager.id,
+          userId: user.id,
           productId: product.id
         }
       ];

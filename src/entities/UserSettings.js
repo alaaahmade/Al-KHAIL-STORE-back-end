@@ -72,6 +72,7 @@ export const UserSettings = new EntitySchema({
         name: "userId",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
   },
 });

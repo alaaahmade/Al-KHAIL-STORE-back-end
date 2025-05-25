@@ -46,15 +46,6 @@ async function createUserIfNotExists(repo, data, roleName, next) {
   
   verifiedRole.users.push(user);
   await roleRepo.save(verifiedRole);
-
-  // 5. Assign role using direct ID
-  // await repo
-  //   .createQueryBuilder()
-  //   .relation(User, 'roles')
-  //   .of(user)
-  //   .add(verifiedRole.id); // Explicitly use the verified ID
-
-  // 6. Return user with relations
   return repo.findOne({ 
     where: { id: user.id }, 
     relations: ['roles'] 
@@ -72,8 +63,6 @@ const becomeASeller = catchAsync(async (req, res, next) => {
 
   // 2) Check if user already exists
   const userRepository = AppDataSource.getRepository(User);
-  // 2) Check if user already exists and create user with role assignment
-  // Create user with explicit role assignment, handle duplicate inside utility
   const newUser = await createUserIfNotExists(userRepository, {
     firstName,
     lastName,
@@ -199,18 +188,36 @@ const register = catchAsync(async (req, res, next) => {
 
   // 3) Hash password
   const hashedPassword = await bcrypt.hash(password, 12);
+  const roleRepository = AppDataSource.getRepository(Roles);
+  const userRole = await roleRepository.findOne({ where: { name: 'USER' } });
+
+  if (!userRole) {
+    return next(new AppError('User role not found', 500));
+  }
 
   // 4) Create new user
-  const newUser = userRepository.create({
+  // const newUser = userRepository.create({
+  //   firstName,
+  //   lastName,
+  //   email,
+  //   password: hashedPassword,
+  //   phoneNumber,
+  //   role: 'USER', // Default role
+  // });
+
+  // await userRepository.save(newUser);
+
+  const newUser =await  createUserIfNotExists(userRepository, {
     firstName,
     lastName,
     email,
     password: hashedPassword,
     phoneNumber,
     role: 'USER', // Default role
-  });
+  }, 'USER', next);
 
-  await userRepository.save(newUser);
+  console.log(newUser);
+  
 
   // 5) Generate token
   const token = generateToken(newUser);

@@ -40,6 +40,7 @@ export const Seller = new EntitySchema({
         name: "userId",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     store: {
       type: "many-to-one",
@@ -49,6 +50,7 @@ export const Seller = new EntitySchema({
         name: "storeId",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
   },
 });

@@ -9,6 +9,10 @@ router
   .get(protect, restrictTo('ADMIN'), userController.getAllUsers)
   .post(protect, restrictTo('ADMIN'), userController.createUser);
 
+router
+  .route("/customers")
+  .get(protect, restrictTo('ADMIN'), userController.getCustomers)
+
 router.route('/roles')
   .get(protect, restrictTo('ADMIN'), userController.getAllRoles)
 

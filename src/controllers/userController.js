@@ -196,9 +196,16 @@ const checkEmailExists = catchAsync(async (req, res) => {
   res.status(200).json({ exists: !!user });
 });
 
+
+const getCustomers = catchAsync(async (req, res) => {
+  const users = await userService.getCustomers()
+  res.status(200).json({data: users})
+})
+
 export default {
   getAllUsers,
   getUser,
+  getCustomers,
   createUser,
   updateUser,
   deleteUser,

@@ -90,6 +90,7 @@ export const Store = new EntitySchema({
       type: "one-to-many",
       target: "Product",
       inverseSide: "store",
+      onDelete: 'CASCADE',
     },
   },
 });
