@@ -211,13 +211,10 @@ const register = catchAsync(async (req, res, next) => {
     firstName,
     lastName,
     email,
-    password: hashedPassword,
+    password,
     phoneNumber,
     role: 'USER', // Default role
-  }, 'USER', next);
-
-  console.log(newUser);
-  
+  }, 'USER', next);  
 
   // 5) Generate token
   const token = generateToken(newUser);
