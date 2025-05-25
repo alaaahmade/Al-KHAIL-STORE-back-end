@@ -1,7 +1,15 @@
 import express from "express";
 import commentController from "../controllers/commentController.js";
+import { protect, restrictTo, isOwnerOrAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Helper to get comment owner
+const getCommentOwnerId = async (req) => {
+  const comment = await commentController.getComment(req);
+  return comment.userId;
+};
+
 // Base routes
 router
   .route("/")
@@ -12,8 +20,8 @@ router
 router
   .route("/:id")
   .get(commentController.getComment)
-  .patch(commentController.updateComment)
-  .delete(commentController.deleteComment);
+  .patch(protect, isOwnerOrAdmin(getCommentOwnerId), commentController.updateComment)
+  .delete(protect, isOwnerOrAdmin(getCommentOwnerId), commentController.deleteComment);
 
 // Special routes
 router.get("/product/:productId", commentController.getCommentsByProduct);

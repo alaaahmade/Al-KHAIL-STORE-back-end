@@ -1,14 +1,14 @@
 import express from "express"
 import cartController, { emptyCartController } from "../controllers/cartController.js"
-import { protect, isOwnerOrAdmin } from "../middleware/auth.js"
+import { protect, restrictTo, isOwnerOrAdmin } from "../middleware/auth.js"
 
 const router = express.Router();
 
-// Base routes (admin/manager only for all carts)
+// Base routes
 router
   .route("/")
-  .post(protect, cartController.createCart)
-  .get(protect, isOwnerOrAdmin(() => null), cartController.getAllCarts); // Only admin/manager should see all carts
+  .post(protect, restrictTo('USER', 'ADMIN', 'MANAGER'), cartController.createCart)
+  .get(protect, restrictTo('ADMIN', 'MANAGER'), cartController.getAllCarts); // Only admin/manager should see all carts
 
 // Get a user's cart (only owner or admin/manager)
 router.get("/user/:userId", protect, isOwnerOrAdmin(req => req.params.userId), cartController.getUserCart);

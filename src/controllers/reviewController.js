@@ -71,6 +71,24 @@ const getReviewsByProduct = catchAsync(async(req, res, next) => {
     });
 })
 
+const getReviewsByUser = catchAsync(async (req, res, next) => {
+  const userId = req.params.userId;
+  const reviews = await reviewService.getReviewsByUser(userId);
+  res.status(200).json({
+    status: 'success',
+    data: reviews
+  });
+});
+
+const getProductAverageRating = catchAsync(async (req, res, next) => {
+  const productId = req.params.productId;
+  const avg = await reviewService.getProductAverageRating(productId);
+  res.status(200).json({
+    status: 'success',
+    data: { averageRating: avg }
+  });
+});
+
 export default {
   getReview,
   createReview,
@@ -78,5 +96,7 @@ export default {
   deleteReview,
   getLatest,
   getAllReviews,
-  getReviewsByProduct
+  getReviewsByProduct,
+  getReviewsByUser,
+  getProductAverageRating
 }

@@ -12,7 +12,7 @@ import AppError from '../utils/AppError.js';
 
 const router = express.Router();
 
-
+// Only authenticated users can access chat
 router.get(
   '/room/:roomId',
   protect,
@@ -21,17 +21,21 @@ router.get(
 
 router.post(
   '/rooms',
+  protect,
   createOrGetChatRoom
 );
 
 // Get all chat rooms for a specific user
 router.get(
   '/rooms/user/:userId',
+  protect,
   getUserChatRooms
 );
 
+// Only participants or admin can send messages (ownership logic should be in controller)
 router.post(
   '/rooms/:roomId/messages',
+  protect,
   async(req,res, next) => {
     try {      
       const {roomId, senderId, content} = req.body
@@ -50,9 +54,8 @@ router.post(
 
 router.get(
   '/rooms/:roomId/messages',
+  protect,
   getChatRoomMessages
 );
-
-
 
 export default router;
