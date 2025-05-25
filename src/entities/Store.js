@@ -84,6 +84,7 @@ export const Store = new EntitySchema({
       type: "one-to-one",
       target: "Seller",
       inverseSide: "store",
+      onDelete: 'CASCADE',
     },
     products: {
       type: "one-to-many",

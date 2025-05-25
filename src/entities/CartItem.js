@@ -47,6 +47,7 @@ export const CartItem = new EntitySchema({
         name: "cartId",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     product: {
       type: "many-to-one",
@@ -55,6 +56,7 @@ export const CartItem = new EntitySchema({
         name: "productId",
         referencedColumnName: "id",
       },
-    },
+      onDelete: 'CASCADE',
+    }
   },
 });

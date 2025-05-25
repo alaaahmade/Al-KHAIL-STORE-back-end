@@ -1,5 +1,6 @@
 import { EntitySchema } from "typeorm";
 import {Product} from "./Product.js"
+
 export const Category = new EntitySchema({
   name: "Category",
   tableName: "Category",
@@ -32,12 +33,12 @@ export const Category = new EntitySchema({
       type: "timestamp",
       name: "created_at",
       nullable: false,
-      default: () => "CURRENT_TIMESTAMP", // ✅ القيمة الافتراضية
+      default: () => "CURRENT_TIMESTAMP",
     },
     time: {
       type: "time",
       nullable: false,
-      default: () => "CURRENT_TIME", // ✅ القيمة الافتراضية
+      default: () => "CURRENT_TIME",
     },
   },
   relations: {

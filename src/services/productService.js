@@ -24,7 +24,14 @@ class ProductService {
   async getProductById(id) {
     const product = await this.getRepository().findOne({
       where: { id },
-      relations: ["category", "store", "comments", "comments.commentReplies"], // تعديل من "categories" إلى "category"
+      relations: [
+      "category",
+      "store",
+      "store.seller",
+      "store.seller.user",
+      "comments",
+      "comments.commentReplies"
+    ], // تعديل من "categories" إلى "category"
     });
 
     if (!product) {
@@ -50,11 +57,6 @@ class ProductService {
 
   async updateProduct(id, productData) {
     const product = await this.getProductById(id);
-
-    if (productData.storeId) {
-      product.store = { id: productData.storeId };
-      delete productData.storeId;
-    }
 
     Object.assign(product, productData);
     return await this.getRepository().save(product);

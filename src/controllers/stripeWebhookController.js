@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { AppDataSource } from '../config/database.js';
-import { Cart, Order, User } from '../entities/index.js';
+import { Cart, User } from '../entities/index.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 

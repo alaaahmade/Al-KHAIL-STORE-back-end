@@ -31,6 +31,7 @@ export const Message = new EntitySchema({
         name: 'chat_room_id',
       },
       nullable: false,
+      onDelete: 'CASCADE',
     },
     sender: {
       type: 'many-to-one',
@@ -39,6 +40,7 @@ export const Message = new EntitySchema({
         name: 'sender_id',
       },
       nullable: false,
-    },
+      onDelete: 'CASCADE',
+    }
   },
 });

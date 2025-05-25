@@ -83,6 +83,7 @@ export const Order = new EntitySchema({
         name: "userId",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     cart: {
       target: "Cart",
@@ -91,6 +92,7 @@ export const Order = new EntitySchema({
         name: "cartId",
         referencedColumnName: "id",
       },
-    },
+      onDelete: 'CASCADE',
+    }
   },
 });

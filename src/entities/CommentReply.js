@@ -48,6 +48,7 @@ export const CommentReply = new EntitySchema({
         name: "comment_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     user: {
       type: "many-to-one",
@@ -56,6 +57,7 @@ export const CommentReply = new EntitySchema({
         name: "user_id",
         referencedColumnName: "id",
       },
-    },
+      onDelete: 'CASCADE',
+    }
   },
 });

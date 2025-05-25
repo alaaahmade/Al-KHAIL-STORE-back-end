@@ -25,6 +25,7 @@ export const ProductCategory = new EntitySchema({
         name: "product_id",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     category: {
       type: "many-to-one",
@@ -33,6 +34,7 @@ export const ProductCategory = new EntitySchema({
         name: "category_id",
         referencedColumnName: "id",
       },
-    },
+      onDelete: 'CASCADE',
+    }
   },
 });

@@ -7,44 +7,38 @@ const router = express.Router();
 // Order routes with authentication and authorization
 router
   .route("/")
-  .get(protect, restrictTo('ADMIN', 'MANAGER'), orderController.getAllOrders)
+  .get(protect, restrictTo('ADMIN', 'SELLER'), orderController.getAllOrders)
   .post(protect, orderController.createOrder);
 
 router
 .route("/recent")
-.get(protect, restrictTo('ADMIN', 'MANAGER'), orderController.getRecentOrders)
+.get(protect, restrictTo('ADMIN', 'SELLER'), orderController.getRecentOrders)
 
 
 router
   .route("/:id")
   .get(
     protect,
-    isOwnerOrAdmin(async (req) => {
-      const order = await orderController.getOrder(req);
-      return order.userId;
-    }),
+    restrictTo('ADMIN', 'SELLER'),
     orderController.getOrder
   )
   .patch(
     protect,
-    isOwnerOrAdmin(async (req) => {
-      const order = await orderController.getOrder(req);
-      return order.userId;
-    }),
+    restrictTo('ADMIN', 'SELLER'),
     orderController.updateOrder
   )
-  .delete(protect, restrictTo('ADMIN', 'MANAGER'), orderController.deleteOrder);
+  .delete(protect, restrictTo('ADMIN', 'SELLER'), orderController.deleteOrder);
 
 router.route("/user/:userId").get(protect, 
-  isOwnerOrAdmin(req => Promise.resolve(Number(req.params.userId))), 
+  restrictTo('ADMIN', 'SELLER'),
   orderController.getOrdersByUser
 );
 
-router.route("/status/:status").get(protect, restrictTo('ADMIN', 'MANAGER'), orderController.getOrdersByStatus);
+router.route("/status/:status").get(protect, restrictTo('ADMIN', 'SELLER'), orderController.getOrdersByStatus);
 
 router.route("/:id/status").patch(
   protect, 
-  restrictTo('ADMIN', 'MANAGER'), 
+  restrictTo('ADMIN', 'SELLER'), 
   orderController.updateOrderStatus
 );
 

@@ -58,6 +58,7 @@ export const Invoice = new EntitySchema({
         name: "orderId",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     user: {
       type: "many-to-one",
@@ -66,6 +67,7 @@ export const Invoice = new EntitySchema({
         name: "userId",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     seller: {
       type: "many-to-one",
@@ -74,6 +76,7 @@ export const Invoice = new EntitySchema({
         name: "sellerId",
         referencedColumnName: "id",
       },
-    },
+      onDelete: 'CASCADE',
+    }
   },
 });

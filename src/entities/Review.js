@@ -43,6 +43,7 @@ export const Review = new EntitySchema({
         name: "userId",
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     product: {
       type: "many-to-one",
@@ -51,6 +52,7 @@ export const Review = new EntitySchema({
         name: "productId",
         referencedColumnName: "id",
       },
-    },
+      onDelete: 'CASCADE',
+    }
   },
 });

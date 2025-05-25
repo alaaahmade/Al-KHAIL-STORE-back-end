@@ -35,7 +35,7 @@ export const Cart = new EntitySchema({
     },
     status: {
       type: "varchar",
-      default: 'active', // 'active', 'checked_out', 'inactive'
+      default: 'active',
     },
   },
   relations: {
@@ -47,6 +47,7 @@ export const Cart = new EntitySchema({
         name: "userId", 
         referencedColumnName: "id",
       },
+      onDelete: 'CASCADE',
     },
     items: {
       type: "one-to-many",

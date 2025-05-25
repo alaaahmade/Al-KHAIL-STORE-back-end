@@ -185,7 +185,6 @@ const getProduct = catchAsync(async (req, res, next) => {
 const updateProduct = catchAsync(async (req, res, next) => {
   try {
     const { category, storeId, productGallery, ...productData } = req.body;
-    // Validate required fields
     if (!storeId) {
       return next(new AppError('storeId is required', 400));
     }
@@ -197,11 +196,9 @@ const updateProduct = catchAsync(async (req, res, next) => {
     if (categories.length !== category.length) {
       return next(new AppError('One or more categories not found', 404));
     }
-    // Prepare updated product data
     const updatedProductData = {
       ...productData,
       productGallery: Array.isArray(productGallery) ? productGallery : [],
-      store: { id: storeId },
       category: categories
     };
     // Update and save product

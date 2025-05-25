@@ -30,16 +30,13 @@ export const protect = async (req, res, next) => {
     let token;    
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
-    }    
-
+    }
     if (!token) {
       return next(new AppError('You are not logged in. Please log in to get access.', 401));
     }
 
-    // 2) Verify token
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // 3) Check if user still exists
     const userRepository = AppDataSource.getRepository(User);
     const currentUser = await userRepository.findOne({ where: { id: decoded.id } });
 
