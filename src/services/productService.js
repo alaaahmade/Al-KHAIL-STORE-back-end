@@ -30,7 +30,9 @@ class ProductService {
       "store.seller",
       "store.seller.user",
       "comments",
-      "comments.commentReplies"
+      "comments.commentReplies",
+      "comments.user",
+      "comments.commentReplies.user"
     ], // تعديل من "categories" إلى "category"
     });
 

@@ -1,15 +1,26 @@
 
 import { AppDataSource } from '../config/database.js';
 import { Comment } from '../entities/Comment.js';
+import { Product } from '../entities/Product.js';
 import {Review} from "../entities/Review.js"
 import AppError from "../utils/AppError.js"
 import catchAsync from "../utils/catchAsync.js"
 
 // Create a new review
-const createReview = catchAsync(async (reviewData) => {
-  const review = await Review.create(reviewData);
+const createReview = async (reviewData) => {
+  const reviewRepo = AppDataSource.getRepository(Comment);
+  const productRepo = AppDataSource.getRepository(Product);
+  const product = await productRepo.findOne({ where: { id: reviewData.productId },
+    relations: ["comments"] });
+  if (!product) {
+    throw new AppError("No product found with that ID", 404);
+  }
+  const review = await reviewRepo.create(reviewData);
+  await reviewRepo.save(review);
+  product.comments.push(review);
+  await productRepo.save(product);
   return review;
-});
+}
 
 // Get all reviews
 const getAllReviews = async () => {

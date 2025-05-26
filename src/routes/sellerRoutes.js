@@ -21,4 +21,8 @@ router.get("/user/:userId", protect, isOwnerOrAdmin(req => req.params.userId), s
 router.get("/store/:storeId", protect, sellerController.getSellersByStore);
 router.patch("/:id/status", protect, sellerController.updateStatus);
 
+// Dashboard endpoints
+router.get("/dashboard/admin", protect, restrictTo('ADMIN'), sellerController.getDashboardStatsForAdmin);
+router.get("/dashboard/:storeId", protect, sellerController.getDashboardStatsForSeller);
+
 export default router;

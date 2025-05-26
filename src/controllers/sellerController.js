@@ -237,6 +237,26 @@ const updateStatus = catchAsync(async (req, res, next) => {
 });
 
 
+// Dashboard stats for admin (all stores)
+const getDashboardStatsForAdmin = catchAsync(async (req, res, next) => {
+  const stats = await sellerService.getDashboardStatsForAdmin();
+  res.status(200).json({
+    status: "success",
+    data: stats
+  });
+});
+
+// Dashboard stats for seller (own store)
+const getDashboardStatsForSeller = catchAsync(async (req, res, next) => {
+  const { storeId } = req.params;
+  if (!storeId) return next(new AppError('storeId param is required', 400));
+  const stats = await sellerService.getDashboardStatsForSeller(storeId);
+  res.status(200).json({
+    status: "success",
+    data: stats
+  });
+});
+
 export default {
   createSeller,
   getAllSellers,
@@ -245,5 +265,7 @@ export default {
   deleteSeller,
   getSellerByUser,
   getSellersByStore,
-  updateStatus
+  updateStatus,
+  getDashboardStatsForAdmin,
+  getDashboardStatsForSeller,
 };

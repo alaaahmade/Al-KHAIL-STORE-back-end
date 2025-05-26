@@ -33,7 +33,6 @@ io.on('connection', socket => {
 
   socket.on('message', async ({ romeId, senderId, content }) => {
     const newMessage = await sendMessage({ roomId: romeId, senderId, content });    
-    io.emit('messageResponse', newMessage);
   })  
 
   socket.on('delete', async ({ id }) => {

@@ -18,12 +18,14 @@ const getAllStores = async () => {
 const getStoreById = async (id) => {
   const store = await storeRepository.findOne({
     where: { id },
-    relations: ["products", "products.comments", "products.category", "seller", ],
+    relations: ["products", "products.comments", "products.category", "seller", "seller.user"],
   });
+
 
   if (!store) {
     throw new AppError(`Store with id ${id} not found`, 404);
   }
+  delete store.seller.user.password;
 
   return store;
 };
