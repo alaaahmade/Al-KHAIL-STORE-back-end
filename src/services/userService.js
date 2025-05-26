@@ -173,6 +173,12 @@ class UserService {
     }))
     return users;
   }
+
+  async disActivateUser(userId) {
+    
+    
+  }
+
 }
 
 
