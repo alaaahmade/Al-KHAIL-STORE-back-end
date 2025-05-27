@@ -181,105 +181,37 @@ export async function seedDatabase() {
     }
 
     // --- Products for each seller ---
-    const productNames = [
-      "Smartphone", "Laptop", "T-shirt", "Cookware Set", "Bluetooth Speaker", "Novel", "Gaming Mouse", "Sneakers", "Vacuum Cleaner", "Desk Lamp", "Notebook", "Wireless Charger"
-    ];
-    const productImages = {
-      "Smartphone": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9",
-      "Laptop": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-      "T-shirt": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
-      "Cookware Set": "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
-      "Bluetooth Speaker": "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-      "Novel": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
-      "Gaming Mouse": "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-      "Sneakers": "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-      "Vacuum Cleaner": "https://images.unsplash.com/photo-1519121784797-8a1f60a2f7c2",
-      "Desk Lamp": "https://images.unsplash.com/photo-1464983953574-0892a716854b",
-      "Notebook": "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
-      "Wireless Charger": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8"
-    };
+    // Dynamically generate productNames, productImages, and allProducts from productAssets
+    const productNames = productAssets.map(p => p.name);
+    const productImages = Object.fromEntries(productAssets.map(p => [p.name, p.image]));
     const allProducts = [];
     for (let s = 0; s < sellers.length; s++) {
-      for (let p = 0; p < 4; p++) {
-        const name = productNames[(s * 4 + p) % productNames.length];
+      for (const asset of productAssets) {
+        // Generate productGalleries for all products from productAssets
+        const productGalleries = Object.fromEntries(productAssets.map(a => [
+          a.name,
+          Array.isArray(a.gallery) && a.gallery.length > 0 ? a.gallery : [a.image]
+        ]));
+
+        // Assign price, offer, qty as before
         const price = 100 + Math.floor(Math.random() * 900);
         const offer = price - Math.floor(Math.random() * 50);
         const qty = 10 + Math.floor(Math.random() * 90);
-        const category = savedCategories[(s * 4 + p) % savedCategories.length];
-        // Product galleries for each type
-        const productGalleries = {
-          "Smartphone": [
-            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9",
-            "https://images.unsplash.com/photo-1512499617640-c2f999098c01",
-            "https://images.unsplash.com/photo-1519681393784-d120267933ba"
-          ],
-          "Laptop": [
-            "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-            "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
-            "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2"
-          ],
-          "T-shirt": [
-            "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
-            "https://images.unsplash.com/photo-1512436991641-6745cdb1723f",
-            "https://images.unsplash.com/photo-1512436991641-6745cdb1723f"
-          ],
-          "Cookware Set": [
-            "https://images.unsplash.com/photo-1504674900247-0877df9cc836",
-            "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-            "https://images.unsplash.com/photo-1519681393784-d120267933ba"
-          ],
-          "Bluetooth Speaker": [
-            "https://images.unsplash.com/photo-1465101046530-73398c7f28ca",
-            "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-            "https://images.unsplash.com/photo-1519121784797-8a1f60a2f7c2"
-          ],
-          "Novel": [
-            "https://images.unsplash.com/photo-1512820790803-83ca734da794",
-            "https://images.unsplash.com/photo-1519681393784-d120267933ba",
-            "https://images.unsplash.com/photo-1519681393784-d120267933ba"
-          ],
-          "Gaming Mouse": [
-            "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-            "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-            "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2"
-          ],
-          "Sneakers": [
-            "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-            "https://images.unsplash.com/photo-1512436991641-6745cdb1723f",
-            "https://images.unsplash.com/photo-1512436991641-6745cdb1723f"
-          ],
-          "Vacuum Cleaner": [
-            "https://images.unsplash.com/photo-1519121784797-8a1f60a2f7c2",
-            "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-            "https://images.unsplash.com/photo-1519681393784-d120267933ba"
-          ],
-          "Desk Lamp": [
-            "https://images.unsplash.com/photo-1464983953574-0892a716854b",
-            "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-            "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2"
-          ],
-          "Notebook": [
-            "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
-            "https://images.unsplash.com/photo-1512820790803-83ca734da794",
-            "https://images.unsplash.com/photo-1519681393784-d120267933ba"
-          ],
-          "Wireless Charger": [
-            "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-            "https://images.unsplash.com/photo-1519125323398-675f0ddb6308",
-            "https://images.unsplash.com/photo-1519681393784-d120267933ba"
-          ]
-        };
+
         const product = productRepo.create({
-          productName: name,
-          productImage: productImages[name] || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-          productGallery: productGalleries[name] || [],
+          productName: asset.name,
+          productImage: asset.image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
+          productGallery: productGalleries[asset.name] || [],
           productStatus: "active",
           standardPrice: price,
           offerPrice: offer,
-          productDescription: `A great ${name.toLowerCase()} from ${stores[s].name}`,
+          productDescription: `A great ${asset.name.toLowerCase()} from ${stores[s].name}`,
           productDate: new Date(),
           productQuantity: qty,
-          category: [category],
+          // Assign category based on the product's category in productAssets
+          category: [
+            savedCategories.find(cat => cat.categoryName === asset.category) || savedCategories[0]
+          ],
           store: stores[s]
         });
         const savedProduct = await productRepo.save(product);
@@ -290,11 +222,14 @@ export async function seedDatabase() {
     // --- Comments and Replies ---
     for (let i = 0; i < allProducts.length; i++) {
       const product = allProducts[i];
+      // Only create comments for products with a valid ID
+      if (!product.id) continue;
       // 2 random users comment on each product
       for (let j = 0; j < 2; j++) {
         const user = users[(i + j) % users.length];
+        const productDisplayName = product.productName || product.name || 'product';
         const comment = commentRepo.create({
-          content: `This ${product.productName} is ${["amazing", "good", "average", "not bad"][j % 4]}!`,
+          content: `This ${productDisplayName} is ${["amazing", "good", "average", "not bad"][j % 4]}!`,
           rating: 3 + (j % 3),
           userId: user.id,
           productId: product.id
@@ -346,9 +281,11 @@ export async function seedDatabase() {
       let cart = cartRepo.create({ userId: user.id, total: 0 });
       cart = await cartRepo.save(cart);
       let total = 0;
-      // Add 2 random products to cart
-      const cartProducts = allProducts.sort(() => 0.5 - Math.random()).slice(0, 2);
+      // Add 2 random valid products to cart
+      const validCartProducts = allProducts.filter(p => p.id && typeof p.offerPrice === 'number' && !isNaN(p.offerPrice));
+      const cartProducts = validCartProducts.sort(() => 0.5 - Math.random()).slice(0, 2);
       for (const p of cartProducts) {
+        if (!p.id || typeof p.offerPrice !== 'number' || isNaN(p.offerPrice)) continue;
         const quantity = 1 + Math.floor(Math.random() * 2);
         const item = cartItemRepo.create({
           cartId: cart.id,
@@ -662,20 +599,29 @@ await userRepo.save(seller);
     const savedCategories = await categoryRepo.find();
 
     // Use productAssets to assign correct category and image
-        const productData = [
-      { name: "Smartphone", price: 699.99, offer: 599.99, qty: 100 },
-      { name: "Laptop", price: 1299.99, offer: 1199.99, qty: 50 },
-      { name: "T-shirt", price: 29.99, offer: 19.99, qty: 200 },
-      { name: "Cookware Set", price: 149.99, offer: 129.99, qty: 70 },
-      { name: "Bluetooth Speaker", price: 99.99, offer: 79.99, qty: 120 },
-      { name: "Novel", price: 19.99, offer: 14.99, qty: 300 },
-      { name: "Gaming Mouse", price: 59.99, offer: 49.99, qty: 80 },
-      { name: "Sneakers", price: 89.99, offer: 74.99, qty: 60 },
-      { name: "Vacuum Cleaner", price: 199.99, offer: 179.99, qty: 40 },
-      { name: "Desk Lamp", price: 39.99, offer: 29.99, qty: 90 },
-      { name: "Notebook", price: 9.99, offer: 7.99, qty: 500 },
-      { name: "Wireless Charger", price: 45.99, offer: 35.99, qty: 100 }
-    ];
+    // Generate productData from productAssets with default/random prices and quantities
+    const productData = productAssets.map(asset => {
+      // Assign price based on category or random (for demo purposes)
+      let basePrice = 19.99;
+      switch(asset.category) {
+        case 'Electronics': basePrice = 99 + Math.random() * 900; break;
+        case 'Clothing': basePrice = 15 + Math.random() * 85; break;
+        case 'Home & Kitchen': basePrice = 30 + Math.random() * 170; break;
+        case 'Books': basePrice = 8 + Math.random() * 22; break;
+        case 'Toys': basePrice = 10 + Math.random() * 40; break;
+        case 'Skincare': basePrice = 20 + Math.random() * 60; break;
+        default: basePrice = 19.99 + Math.random() * 80;
+      }
+      basePrice = Math.round(basePrice * 100) / 100;
+      const offer = Math.round((basePrice * (0.7 + Math.random() * 0.2)) * 100) / 100; // Offer is 70-90% of price
+      const qty = Math.floor(30 + Math.random() * 170); // Between 30 and 200
+      return {
+        name: asset.name,
+        price: basePrice,
+        offer: offer,
+        qty: qty
+      };
+    });
 
     for (let i = 0; i < productData.length; i++) {
       const asset = productAssets.find(a => a.name.toLowerCase() === productData[i].name.toLowerCase());

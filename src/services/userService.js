@@ -175,6 +175,15 @@ class UserService {
   }
 
   async disActivateUser(userId) {
+    const user = await this.getUserById(userId);
+    
+    if (!user) {
+      throw new AppError('User not found', 404);
+    }
+    
+    user.isActive = false;
+    
+    return await this.repo.save(user);
     
     
   }

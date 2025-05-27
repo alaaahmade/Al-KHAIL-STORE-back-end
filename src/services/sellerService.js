@@ -123,7 +123,7 @@ const getAllSellers = async () => {
 
 
 // Get seller by ID
-const getSeller = async (id) => {gi
+const getSeller = async (id) => {
   const sellerRepository = AppDataSource.getRepository(Seller);
   const seller = await sellerRepository.findOne({
     where: { id },
