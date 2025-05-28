@@ -10,7 +10,6 @@ import {CommentReply} from "./CommentReply.js";
 import {Manager} from "./Manager.js";
 import {Seller} from "./Seller.js";
 import {Store} from "./Store.js";
-import { Review } from './Review.js';
 import {Roles} from './roles.js'
 import {ChatRoom} from './ChatRoom.js';
 import {Message} from './Message.js';
@@ -29,7 +28,6 @@ const entities = [
   Manager,
   Seller,
   Store,
-  Review,
   Roles,
   ChatRoom,
   Message,
@@ -50,7 +48,6 @@ export {
   Seller,
   Store,
   entities,
-  Review,
   Roles,
   ChatRoom,
   Message,

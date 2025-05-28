@@ -20,8 +20,46 @@ import AppError from "../utils/AppError.js";
  *       400:
  *         description: Invalid input
  */
+/**
+ * @swagger
+ * /api/comment-replies:
+ *   post:
+ *     summary: Create a new comment reply
+ *     tags: [Comment Replies]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *               commentId:
+ *                 type: integer
+ *               userId:
+ *                 type: integer
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ *                     type:
+ *                       type: string
+ *                     text:
+ *                       type: string
+ *                 description: "Array of file objects (url, type, text?)"
+ *     responses:
+ *       201:
+ *         description: Comment reply created successfully
+ *       400:
+ *         description: Invalid input
+ */
 const createCommentReply = catchAsync(async (req, res) => {
-  const reply = await commentReplyService.createCommentReply(req.body);
+  const { content, commentId, userId, files } = req.body;
+  const reply = await commentReplyService.createCommentReply({ content, commentId, userId, files });
   res.status(201).json({
     status: "success",
     data: reply,

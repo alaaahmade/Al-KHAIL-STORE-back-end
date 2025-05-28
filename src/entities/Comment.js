@@ -34,6 +34,12 @@ export const Comment = new EntitySchema({
       default: () => "CURRENT_TIMESTAMP",
       onUpdate: "CURRENT_TIMESTAMP",
     },
+    files: {
+      type: "simple-json",
+      nullable: true,
+      default: null,
+      comment: 'Array of file objects: { url, type, text? }',
+    },
   },
   relations: {
     user: {

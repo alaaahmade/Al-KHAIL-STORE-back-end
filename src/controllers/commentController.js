@@ -1,6 +1,8 @@
 import commentService from "../services/commentService.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../utils/AppError.js";
+import { AppDataSource } from '../config/database.js';
+import { Comment } from '../entities/Comment.js';
 
 /**
  * @swagger
@@ -20,8 +22,48 @@ import AppError from "../utils/AppError.js";
  *       400:
  *         description: Invalid input
  */
+/**
+ * @swagger
+ * /api/comments:
+ *   post:
+ *     summary: Create a new comment
+ *     tags: [Comments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *               rating:
+ *                 type: integer
+ *               userId:
+ *                 type: integer
+ *               productId:
+ *                 type: integer
+ *               files:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     url:
+ *                       type: string
+ *                     type:
+ *                       type: string
+ *                     text:
+ *                       type: string
+ *                 description: "Array of file objects (url, type, text?)"
+ *     responses:
+ *       201:
+ *         description: Comment created successfully
+ *       400:
+ *         description: Invalid input
+ */
 const createComment = catchAsync(async (req, res) => {
-  const comment = await commentService.createComment(req.body);
+  const { content, rating, userId, productId, files } = req.body;
+  const comment = await commentService.createComment({ content, rating, userId, productId, files });
   res.status(201).json({
     status: "success",
     data: comment,
@@ -219,8 +261,43 @@ const getProductAverageRating = catchAsync(async (req, res) => {
   });
 });
 
+const getLatest = catchAsync(async (req, res, next) => {
+  const commentRepo = AppDataSource.getRepository(Comment);
+  const results = await commentRepo.find({
+    relations: ["user", "product", 'commentReplies', 'commentReplies.user'],
+    take: 3,
+  });
+  res.status(200).json({
+    status: 'success',
+    data: [...results]
+  });
+});
 
-export default{
+const getReviewsByProduct = catchAsync(async (req, res) => {
+  const comments = await commentService.getCommentsByProduct(req.params.productId);
+  res.status(200).json({
+    status: 'success',
+    data: comments
+  });
+});
+
+const getReviewsByUser = catchAsync(async (req, res) => {
+  const comments = await commentService.getCommentsByUser(req.params.userId);
+  res.status(200).json({
+    status: 'success',
+    data: comments
+  });
+});
+
+const getReviewsWithStoreId = catchAsync(async (req, res) => {  
+  const comments = await commentService.getReviewsWithStoreId(req.params.storeId);
+  res.status(200).json({
+    status: 'success',
+    data: comments
+  });
+});
+
+export default {
   createComment,
   getAllComments,
   getComment,
@@ -228,5 +305,10 @@ export default{
   deleteComment,
   getCommentsByProduct,
   getCommentsByUser,
-  getProductAverageRating
+  getProductAverageRating,
+  getReviewsByProduct,
+  getReviewsByUser,
+  getProductAverageRating,
+  getLatest,
+  getReviewsWithStoreId
 }

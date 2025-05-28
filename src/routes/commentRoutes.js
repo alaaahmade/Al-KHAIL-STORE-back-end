@@ -11,10 +11,16 @@ const getCommentOwnerId = async (req) => {
 };
 
 // Base routes
+
+router.get("/store/:storeId", commentController.getReviewsWithStoreId);
+
 router
   .route("/")
   .post(commentController.createComment)
   .get(commentController.getAllComments);
+  
+
+router.route('/latest').get(commentController.getLatest);
 
 // Routes with ID
 router
@@ -24,8 +30,8 @@ router
   .delete(protect, isOwnerOrAdmin(getCommentOwnerId), commentController.deleteComment);
 
 // Special routes
-router.get("/product/:productId", commentController.getCommentsByProduct);
-router.get("/user/:userId", commentController.getCommentsByUser);
+router.get("/product/:productId", commentController.getReviewsByProduct);
+router.get("/user/:userId", commentController.getReviewsByUser);
 router.get(
   "/product/:productId/average-rating",
   commentController.getProductAverageRating
