@@ -21,6 +21,12 @@ export const Message = new EntitySchema({
       type: 'varchar',
       nullable: false,
       default: 'text',
+    },
+    files: {
+      type: 'simple-json',
+      nullable: true,
+      default: null,
+      comment: 'Array of file objects: { url, type, text? }',
     }
   },
   relations: {

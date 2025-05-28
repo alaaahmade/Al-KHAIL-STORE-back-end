@@ -111,8 +111,9 @@ const chatRooms = await chatRoomRepository
   }
 };
 
-export const sendMessage = async ({roomId, senderId, content}) => {
-  if (!senderId || !content) {
+export const sendMessage = async ({roomId, senderId, content, files=null}) => {
+
+  if (!senderId || (!content && !files?.url)) {
     return { status: 400, message: 'Missing senderId or content.' };
   }
 
@@ -144,6 +145,7 @@ export const sendMessage = async ({roomId, senderId, content}) => {
       content,
       sender,
       chatRoom,
+      files
     });
     await messageRepository.save(message);
 

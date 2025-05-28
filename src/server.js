@@ -31,8 +31,8 @@ io.on('connection', socket => {
 
   handleIsActive(userId);
 
-  socket.on('message', async ({ romeId, senderId, content }) => {
-    const newMessage = await sendMessage({ roomId: romeId, senderId, content });    
+  socket.on('message', async ({ romeId, senderId, content, files=null }) => {
+    const newMessage = await sendMessage({ roomId: romeId, senderId, content, files });    
   })  
 
   socket.on('delete', async ({ id }) => {
