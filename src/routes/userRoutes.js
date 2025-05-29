@@ -10,6 +10,9 @@ router
   .post(protect, restrictTo('ADMIN'), userController.createUser);
 
 router
+  .route("/merchants/status")
+  .patch(protect, restrictTo('ADMIN'), userController.changeUserStatus);
+router
   .route("/customers")
   .get(protect, restrictTo('ADMIN'), userController.getCustomers);
 

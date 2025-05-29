@@ -1,6 +1,7 @@
 import { AppDataSource } from "../config/database.js";
 import { Roles, User } from "../entities/index.js";
 import AppError from "../utils/AppError.js";
+import { transporter } from '../utils/nodeMailer.js';
 
 class UserService {
 
@@ -186,6 +187,52 @@ class UserService {
     return await this.repo.save(user);
     
     
+  }
+
+  async changeUserStatus (id, status) {
+    const user = await this.getUserById(id)
+    if (!user) {
+      throw new AppError('User not found', 404)
+    }
+    user.status = status
+    if (status === "ACTIVE"){
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER || 'balantypro@gmail.com',
+        to: user.email,
+        subject: 'Al-KHAIL-STORE Password Reset Code',
+        text: `
+          Hello,
+          Your account has been activated. You can now log in to your account.
+          Thank you,  
+          The Al-KHAIL-STORE Team
+        `
+  });
+    } else if (status === "BANNED") {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER || 'balantypro@gmail.com',
+        to: user.email,
+        subject: 'Al-KHAIL-STORE Password Reset Code',
+        text: `
+          Hello,
+          Your account has been banned. You cannot log in to your account.
+          Thank you,  
+          The Al-KHAIL-STORE Team
+        `
+  });
+    } else if (status === "PENDING") {
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER || 'balantypro@gmail.com',
+        to: user.email,
+        subject: 'Al-KHAIL-STORE Password Reset Code',
+        text: `
+          Hello,
+          Your account is pending. You cannot log in to your account until it is approved.
+          Thank you,  
+          The Al-KHAIL-STORE Team
+        `
+  });
+    }
+    return await this.repo.save(user)
   }
 
 }

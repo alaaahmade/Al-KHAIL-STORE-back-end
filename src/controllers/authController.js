@@ -8,8 +8,8 @@ import { Cart } from '../entities/Cart.js'
 import { UserSettings } from '../entities/UserSettings.js'
 import { Seller } from '../entities/Seller.js'
 import { Store } from '../entities/Store.js'
-import nodemailer from 'nodemailer';
 import { Roles } from '../entities/roles.js'
+import { transporter } from '../utils/nodeMailer.js'
 
 /**
  * Become a Seller
@@ -63,6 +63,11 @@ const becomeASeller = catchAsync(async (req, res, next) => {
 
   // 2) Check if user already exists
   const userRepository = AppDataSource.getRepository(User);
+  const existingUser = await userRepository.findOne({ where: { email } });
+  if (existingUser) {
+    return next(new AppError('User with this email already exists', 400));
+  }
+
   const newUser = await createUserIfNotExists(userRepository, {
     firstName,
     lastName,
@@ -71,6 +76,7 @@ const becomeASeller = catchAsync(async (req, res, next) => {
     phoneNumber,
     role: 'SELLER',
     isActive: true,
+    status: 'PENDING'
   }, 'SELLER', next);
 
 
@@ -86,7 +92,6 @@ const becomeASeller = catchAsync(async (req, res, next) => {
   });
   await storeRepo.save(newStore);
 
-  // 6) Create Seller profile and link to user and store
   const sellerRepo = AppDataSource.getRepository(Seller);
   const newSeller = sellerRepo.create({
     user: newUser,
@@ -96,7 +101,6 @@ const becomeASeller = catchAsync(async (req, res, next) => {
   await sellerRepo.save(newSeller);
   newUser.seller = newSeller;
 
-  // 7) Create Cart
   const cartRepo = AppDataSource.getRepository(Cart);
   const newCart = cartRepo.create({
     user: newUser,
@@ -104,7 +108,6 @@ const becomeASeller = catchAsync(async (req, res, next) => {
   await cartRepo.save(newCart);
   newUser.cart = newCart;
 
-  // 8) Create UserSettings
   const settingsRepo = AppDataSource.getRepository(UserSettings);
   const newSettings = settingsRepo.create({
     user: newUser,
@@ -114,21 +117,27 @@ const becomeASeller = catchAsync(async (req, res, next) => {
 
   await userRepository.save(newUser);
 
-  // 9) Generate token
-  const token = generateToken(newUser);
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER || 'balantypro@gmail.com',
+    to: email,
+    subject: 'Al-KHAIL-STORE - Seller Request Received',
+    text: `
+      Hello,
 
-  // Remove password from output
-  const userResponse = await userRepository.findOne({
-    where: { id: newUser.id },
-    relations: ["seller", "seller.store", "cart", "cart.items", 'settings']
-  });
-  delete userResponse.password;
+      Thank you for your interest in becoming a seller on Al-KHAIL-STORE.
+      We’ve received your request and our team will review it shortly.
+      You’ll receive an email once it’s reviewed.
+
+      Best regards,  
+      The Al-KHAIL-STORE Team
+        `
+    });
+
 
   res.status(201).json({
     status: 'success',
-    token,
     data: {
-      user: userResponse
+      message: 'We’ve received your seller request. You’ll get an email once it’s reviewed'
     }
   });
 });
@@ -152,7 +161,18 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
 
-  // 4) If everything ok, send token to client
+  if (user.status === 'BANNED') {
+    return next(new AppError('Your account has been banned', 401));
+  }
+
+  if (user.status === 'PENDING') {
+    return next(new AppError('Your account is pending', 401));
+  }
+
+  if (user.status !== 'ACTIVE') {
+    return next(new AppError('Your account has been deactivated', 401));
+  }
+
   const token = generateToken(user);
 
   // Remove password from output
@@ -187,33 +207,20 @@ const register = catchAsync(async (req, res, next) => {
   }
 
   // 3) Hash password
-  const hashedPassword = await bcrypt.hash(password, 12);
   const roleRepository = AppDataSource.getRepository(Roles);
   const userRole = await roleRepository.findOne({ where: { name: 'USER' } });
 
   if (!userRole) {
     return next(new AppError('User role not found', 500));
   }
-
-  // 4) Create new user
-  // const newUser = userRepository.create({
-  //   firstName,
-  //   lastName,
-  //   email,
-  //   password: hashedPassword,
-  //   phoneNumber,
-  //   role: 'USER', // Default role
-  // });
-
-  // await userRepository.save(newUser);
-
   const newUser =await  createUserIfNotExists(userRepository, {
     firstName,
     lastName,
     email,
     password,
     phoneNumber,
-    role: 'USER', // Default role
+    role: 'USER',
+    status: 'ACTIVE'
   }, 'USER', next);  
 
   // 5) Generate token
@@ -254,12 +261,27 @@ const register = catchAsync(async (req, res, next) => {
  * @route GET /api/auth/me
  */
 const getMe = catchAsync(async (req, res, next) => {
-  // User already available from auth middleware  
   const userRepository = AppDataSource.getRepository(User);
   const user = await userRepository.findOne({ where: { id: req.user.id }, relations: ["seller", "seller.store", "cart", "cart.items", 'settings'] });
   const userResponse = { ...req.user, ...user };
   delete userResponse.password;
-  
+
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  if (user.status === 'BANNED') {
+    return next(new AppError('Your account has been banned', 401));
+  }
+
+  if (user.status === 'PENDING') {
+    return next(new AppError('Your account is pending', 401));
+  }
+
+  if (user.status !== 'ACTIVE') {
+    return next(new AppError('Your account has been deactivated', 401));
+  }
+
   await userRepository.update(req.user.id, {
     lastActiveAt: new Date(),
   });
@@ -287,6 +309,21 @@ const updatePassword = catchAsync(async (req, res, next) => {
   const userRepository = AppDataSource.getRepository(User);
   const user = await userRepository.findOne({ where: { id: req.user.id } });
 
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+    if (user.status === 'BANNED') {
+    return next(new AppError('Your account has been banned', 401));
+  }
+
+  if (user.status === 'PENDING') {
+    return next(new AppError('Your account is pending', 401));
+  }
+
+  if (user.status !== 'ACTIVE') {
+    return next(new AppError('Your account has been deactivated', 401));
+  }
+
   // 3) Check if current password is correct
   if (!(await bcrypt.compare(currentPassword, user.password))) {
     return next(new AppError('Your current password is incorrect', 401));
@@ -312,16 +349,6 @@ const updatePassword = catchAsync(async (req, res, next) => {
 
 // --- Password Reset In-Memory Store ---
 const resetCodes = {};
-
-
-// Configure your transporter (update with your SMTP credentials)
-const transporter = nodemailer.createTransport({
-  service: 'gmail', // or your provider
-  auth: {
-    user: process.env.EMAIL_USER || 'balantypro@gmail.com',
-    pass: process.env.EMAIL_PASS || 'lpkvuhrztdzfgcdr',
-  },
-});
 
 // Helper to send email
 async function sendResetEmail(email, code) {
@@ -356,6 +383,18 @@ const forgotPassword = catchAsync(async (req, res, next) => {
   const user = await userRepository.findOne({ where: { email } });
 
   if (!user) return next(new AppError('User not found', 404));
+
+    if (user.status === 'BANNED') {
+    return next(new AppError('Your account has been banned', 401));
+  }
+
+  if (user.status === 'PENDING') {
+    return next(new AppError('Your account is pending', 401));
+  }
+
+  if (user.status !== 'ACTIVE') {
+    return next(new AppError('Your account has been deactivated', 401));
+  }
 
   // Generate 6-digit code
   const code = Math.floor(100000 + Math.random() * 900000).toString();

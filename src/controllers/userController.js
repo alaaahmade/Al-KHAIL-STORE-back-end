@@ -202,6 +202,14 @@ const getCustomers = catchAsync(async (req, res) => {
   res.status(200).json({data: users})
 })
 
+const changeUserStatus = catchAsync(async (req, res) => {
+  const {id, status} = req.body
+  console.log(id, status);
+  
+  await userService.changeUserStatus(id, status)
+  res.status(200).json({message: "Merchants status updated successfully"})
+})
+
 export default {
   getAllUsers,
   getUser,
@@ -211,4 +219,5 @@ export default {
   deleteUser,
   getAllRoles,
   checkEmailExists,
+  changeUserStatus
 }

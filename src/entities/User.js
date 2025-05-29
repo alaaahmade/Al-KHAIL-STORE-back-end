@@ -62,7 +62,11 @@ export const User = new EntitySchema({
       nullable: true,
       unique: true,
     },
-
+    status: {
+      type: "varchar",
+      nullable: false,
+      default: "ACTIVE",
+    },
   },
   relations: {
     comments: {
