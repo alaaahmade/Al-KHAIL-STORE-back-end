@@ -263,11 +263,13 @@ const checkoutCart = async (cartId, userId, userRole, orderData) => {
     });
   }
   // Create Stripe Checkout Session
+  const userEmail = await userReposetry.findOne({where: {id: userId}})
+  
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items,
     mode: 'payment',
-    customer_email: orderData.shipping?.email || orderData.email,
+    // customer_email: orderData.shipping?.email || userEmail.email,
     success_url: `${process.env.FRONTEND_URL}/checkout/confirmation?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.FRONTEND_URL}/checkout/details`,
     metadata: {
@@ -275,7 +277,8 @@ const checkoutCart = async (cartId, userId, userRole, orderData) => {
       userId: cart.userId.toString(),
     },
   });  
-
+    console.log(session);
+    
   // Create the order in DB for reference (optional, can be moved to webhook if you want strict post-payment logic)
   const order = await orderRepository.save({
     cartId: cart.id,

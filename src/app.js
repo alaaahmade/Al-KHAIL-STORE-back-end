@@ -78,13 +78,18 @@ app.use("/api/v1/chat", chatRoutes);
 app.use('/api/v1/payments', stripeRoutes);
 app.use('/api/v1/files', fileRoutes);
 
-// File upload/download endpoints
 
 app.use(errorHandler);
 
-// Handle unhandled routes
+
+// const handle = app.getRequestHandler();
+// app.prepare().then(() => {
+//   server.all('*', (req, res) => {
+//     return handle(req, res); 
+//   }); 
+// });
+
 app.all("*", (req, res, next) => {
   const error = new AppError(`Can't find ${req.originalUrl} on this server!`,404 );
-  // error.status = 404;
   next(error);
 });
