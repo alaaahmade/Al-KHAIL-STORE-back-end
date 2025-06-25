@@ -56,12 +56,10 @@ async function createUserIfNotExists(repo, data, roleName, next) {
 const becomeASeller = catchAsync(async (req, res, next) => {
   const { firstName, lastName, email, password, storeName, description, phoneNumber } = req.body;
 
-  // 1) Check if required fields exist
   if (!firstName || !lastName || !email || !password || !storeName || !description || !phoneNumber) {
     return next(new AppError('Please provide all required fields', 400));
   }
 
-  // 2) Check if user already exists
   const userRepository = AppDataSource.getRepository(User);
   const existingUser = await userRepository.findOne({ where: { email } });
   if (existingUser) {
@@ -80,7 +78,6 @@ const becomeASeller = catchAsync(async (req, res, next) => {
   }, 'SELLER', next);
 
 
-  // 5) Create Store
   const storeRepo = AppDataSource.getRepository(Store);
   const newStore = storeRepo.create({
     name: storeName,
@@ -176,8 +173,19 @@ const login = catchAsync(async (req, res, next) => {
   const token = generateToken(user);
 
   // Remove password from output
-  const userResponse = await userRepository.findOne({ where: { id: user.id }, relations: ["seller", "seller.store", "cart", "cart.items", 'settings'] });
+  const userResponse = await userRepository.findOne({ where: { id: user.id }, relations: ["seller", "seller.store", "cart", "cart.items", 'settings', 'roles'] });
   delete userResponse.password;
+
+  if(!userResponse.cart){
+  const cartRepo = AppDataSource.getRepository(Cart);
+  const newCart = cartRepo.create({
+    user: userResponse,
+  });
+  await cartRepo.save(newCart);
+  userResponse.cart = newCart;
+  
+   await userRepository.save(userResponse);
+}
 
   res.status(200).json({
     status: 'success',
@@ -193,12 +201,10 @@ const login = catchAsync(async (req, res, next) => {
 const register = catchAsync(async (req, res, next) => {
   const { firstName, lastName, email, password, phoneNumber } = req.body;
 
-  // 1) Check if required fields exist
   if (!firstName || !lastName || !email || !password || !phoneNumber) {
     return next(new AppError('Please provide all required fields', 400));
   }
 
-  // 2) Check if user already exists
   const userRepository = AppDataSource.getRepository(User);
   const existingUser = await userRepository.findOne({ where: { email } });
 
@@ -206,7 +212,6 @@ const register = catchAsync(async (req, res, next) => {
     return next(new AppError('User with this email already exists', 400));
   }
 
-  // 3) Hash password
   const roleRepository = AppDataSource.getRepository(Roles);
   const userRole = await roleRepository.findOne({ where: { name: 'USER' } });
 
@@ -223,7 +228,6 @@ const register = catchAsync(async (req, res, next) => {
     status: 'ACTIVE'
   }, 'USER', next);  
 
-  // 5) Generate token
   const token = generateToken(newUser);
 
   const cartRepo = AppDataSource.getRepository(Cart);
@@ -244,7 +248,7 @@ const register = catchAsync(async (req, res, next) => {
 
 
   // Remove password from output
-  const userResponse = await  userRepository.findOne({ where: { id: newUser.id }, relations: ["seller", "seller.store", "cart", "cart.items", 'settings'] });
+  const userResponse = await  userRepository.findOne({ where: { id: newUser.id }, relations: ["seller", "seller.store", "cart", "cart.items", 'settings', 'roles'] });
   delete userResponse.password;
 
   res.status(201).json({
@@ -262,9 +266,21 @@ const register = catchAsync(async (req, res, next) => {
  */
 const getMe = catchAsync(async (req, res, next) => {
   const userRepository = AppDataSource.getRepository(User);
-  const user = await userRepository.findOne({ where: { id: req.user.id }, relations: ["seller", "seller.store", "cart", "cart.items", 'settings'] });
+  const user = await userRepository.findOne({ where: { id: req.user.id }, relations: ["seller", "seller.store", "cart", "cart.items", 'settings', 'roles'] });
   const userResponse = { ...req.user, ...user };
   delete userResponse.password;
+
+
+  if(!userResponse.cart){
+    const cartRepo = AppDataSource.getRepository(Cart);
+    const newCart = cartRepo.create({
+      user: userResponse,
+    });
+    await cartRepo.save(newCart);
+    userResponse.cart = newCart;
+    
+     await userRepository.save(userResponse);
+  }
 
   if (!user) {
     return next(new AppError('User not found', 404));
@@ -359,9 +375,9 @@ async function sendResetEmail(email, code) {
     text: `
   Hello,
   
-  You requested to reset your password for your Al-KHAIL-STORE account.
+  You requested to reset Al KHAIL STOREword for your Al-KHAIL-STORE account.
   
-  Your password reset code is: ${code}
+  Al KHAIL STOREword reset code is: ${code}
   
   If you did not request this, please ignore this email. This code will expire shortly for your security.
   

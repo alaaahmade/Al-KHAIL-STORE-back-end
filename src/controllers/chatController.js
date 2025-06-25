@@ -34,6 +34,7 @@ export const createOrGetChatRoom = async (req, res, next) => {
       .innerJoin('chatRoom.participants', 'p1')
       .where('p1.id = :userId', { userId: user1.id })
       .leftJoinAndSelect('chatRoom.participants', 'allParticipants') 
+      .leftJoinAndSelect('allParticipants.roles', 'participantRoles')
       .getMany();
 
     let existingRoom = null;
@@ -91,6 +92,8 @@ const chatRooms = await chatRoomRepository
 
   // Join store from seller
   .leftJoinAndSelect('participantSeller.store', 'participantStore')
+  
+  .leftJoinAndSelect('participant.roles', 'participantRoles')
 
   // Join messages and sender
   .leftJoinAndSelect('chatRoom.messages', 'messages')
@@ -124,7 +127,7 @@ export const sendMessage = async ({roomId, senderId, content, files=null}) => {
   try {
     const chatRoom = await chatRoomRepository.findOne({ 
       where: { id: roomId },
-      relations: ['participants'] 
+      relations: ['participants', 'participants.roles'] 
     });
 
     if (!chatRoom) {
@@ -197,7 +200,7 @@ export const getRomeById = async (req, res, next) => {
   try {
     const chatRoom = await chatRoomRepository.findOne({
       where: { id: roomId },
-      relations: ['participants', 'participants.seller', 'participants.seller.store',  'messages', 'messages.sender'],
+      relations: ['participants', 'participants.seller', 'participants.seller.store',  'messages', 'messages.sender', 'participants.roles'],
     });
     if (!chatRoom) {
       return res.status(404).json({ message: 'Chat room not found.' });

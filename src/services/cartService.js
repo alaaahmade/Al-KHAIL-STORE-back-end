@@ -194,8 +194,6 @@ const getUserCart = async (userId) => {
   }
 };
 
-// Checkout cart
-// Checkout cart: Only creates Stripe session and order, does not mutate cart status
 const checkoutCart = async (cartId, userId, userRole, orderData) => {
   const orderRepository = AppDataSource.getRepository(Order);
   const cartRepository = AppDataSource.getRepository(Cart);
@@ -205,9 +203,12 @@ const checkoutCart = async (cartId, userId, userRole, orderData) => {
     where: { id: cartId },
     relations: ["items", "items.product"],
   });
+  console.log(cart);
+  
   if (!cart) {
     throw new AppError("No cart found with that ID", 404);
   }
+  
   if (!cart.userId || cart.userId.toString() !== userId.toString()) {
     throw new AppError("You do not have permission to checkout this cart", 403);
   }

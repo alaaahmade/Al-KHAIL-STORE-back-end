@@ -73,7 +73,6 @@ app.use("/api/v1/invoices", invoiceRoutes);
 app.use("/api/v1/comments", commentRoutes);
 app.use("/api/v1/comment-replies", commentReplyRoutes);
 app.use("/api/v1/stores", storeRoutes);
-// app.use("/api/v1/reviews", reviews);
 app.use("/api/v1/chat", chatRoutes);
 app.use('/api/v1/payments', stripeRoutes);
 app.use('/api/v1/files', fileRoutes);
